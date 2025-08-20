@@ -780,8 +780,7 @@
 
         // APPROVED EMAILS - Add your team's emails here
         const APPROVED_EMAILS = [
-            'yvonzh@gmail.com',           // YOUR EMAIL HERE
-              
+            'yvonzh@gmail.com'           // YOUR EMAIL HERE              
             // Add more emails as needed
         ];
 
@@ -802,22 +801,29 @@
                 
                 updateConnectionStatus('loading', 'Connecting to database...');
                 
-                // Monitor authentication state
+                // Monitor authentication state with debugging
                 onAuthStateChanged(auth, (user) => {
+                    console.log('🔥 Auth state changed:', user ? user.email : 'No user');
+                    
                     if (user) {
+                        console.log('👤 User email:', user.email);
+                        console.log('📋 Approved emails:', APPROVED_EMAILS);
+                        console.log('✅ Is approved:', APPROVED_EMAILS.includes(user.email));
+                        
                         // Check if user email is approved
                         if (APPROVED_EMAILS.includes(user.email)) {
+                            console.log('🎉 User approved, showing main app');
                             currentUser = user;
                             updateConnectionStatus('connected', `Welcome, ${user.displayName || user.email}!`);
                             isFirebaseInitialized = true;
                             setupUserShiftListener();
                             showMainApp();
                         } else {
-                            // User not approved
+                            console.log('❌ User not approved, showing access denied');
                             showAccessDeniedScreen(user);
                         }
                     } else {
-                        // User not signed in
+                        console.log('🚪 No user, showing login screen');
                         showLoginScreen();
                     }
                 });
@@ -852,6 +858,7 @@
         }
 
         function showLoginScreen() {
+            console.log('🖥️ Showing login screen');
             document.body.innerHTML = `
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
                     <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
@@ -878,6 +885,7 @@
         }
 
         function showAccessDeniedScreen(user) {
+            console.log('❌ Showing access denied screen for:', user.email);
             document.body.innerHTML = `
                 <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
                     <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
@@ -907,31 +915,50 @@
         }
 
         function showMainApp() {
+            console.log('🏠 showMainApp called');
+            
+            // Check if container exists (main app elements)
+            const container = document.querySelector('.container');
+            if (!container) {
+                console.log('⚠️ Container not found, restoring original HTML');
+                // Reload page to restore original HTML structure
+                window.location.reload();
+                return;
+            }
+            
+            console.log('✅ Container found, showing main app');
+            
             // Show the sign out button
             const signOutBtn = document.getElementById('signOutBtn');
+            console.log('🔘 Sign out button found:', !!signOutBtn);
             if (signOutBtn) {
                 signOutBtn.style.display = 'block';
             }
+            
             renderCalendar();
             updateStats();
         }
 
         // Authentication functions
         window.signInWithGoogle = async function() {
+            console.log('🔑 Attempting Google sign-in...');
             try {
                 const provider = new GoogleAuthProvider();
-                await signInWithPopup(auth, provider);
+                const result = await signInWithPopup(auth, provider);
+                console.log('✅ Sign-in successful:', result.user.email);
             } catch (error) {
-                console.error('Sign-in error:', error);
+                console.error('❌ Sign-in error:', error);
                 alert('Sign-in failed: ' + error.message);
             }
         };
 
         window.signOutUser = async function() {
+            console.log('👋 Signing out...');
             try {
                 await signOut(auth);
+                console.log('✅ Sign-out successful');
             } catch (error) {
-                console.error('Sign-out error:', error);
+                console.error('❌ Sign-out error:', error);
             }
         };
 
