@@ -802,14 +802,19 @@
                 
                 updateConnectionStatus('loading', 'Connecting to database...');
                 
-                // Check for redirect result first (mobile)
+                // Check for redirect result first (CRITICAL for redirect auth)
+                console.log('🔍 Checking for redirect result...');
                 try {
                     const result = await getRedirectResult(auth);
                     if (result) {
+                        console.log('📱 ✅ REDIRECT RESULT FOUND!');
                         console.log('📱 Redirect sign-in successful:', result.user.email);
+                        console.log('📱 User:', result.user);
+                    } else {
+                        console.log('📱 No redirect result found');
                     }
                 } catch (error) {
-                    console.log('📱 No redirect result or error:', error.message);
+                    console.log('📱 Redirect result error:', error.message);
                 }
                 
                 // Monitor authentication state with debugging
