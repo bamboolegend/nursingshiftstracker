@@ -960,7 +960,7 @@ const firebaseConfig = {
                     const shift = shiftData[dateKey];
                     if (shift) {
                         totalShifts++;
-                        totalHours += 11.5;
+                        totalHours += 11.25;
                         
                         // Count assignments
                         if (shift.assignment === 'Double') {
@@ -1021,50 +1021,107 @@ const firebaseConfig = {
             });
         }
 
-        window.exportToCSV = function() {
-            const csvData = [];
-            csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
+window.exportToCSV = function() {
+    const currentYear = new Date().getFullYear();
+    const csvData = [];
+    
+    // Add header for shift data
+    csvData.push(['SHIFT DATA']);
+    csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
 
-            Object.keys(shiftData).forEach(dateKey => {
-                const shift = shiftData[dateKey];
-                const date = new Date(dateKey).toLocaleDateString();
+    // Add shift data
+    Object.keys(shiftData).forEach(dateKey => {
+        const shift = shiftData[dateKey];
+        const date = new Date(dateKey).toLocaleDateString();
+        
+        csvData.push([
+            date,
+            shift.unit,
+            shift.assignment,
+            shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
+            shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
+            shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
+            '11.25'
+        ]);
+    });
+
+    // Calculate statistics (MOVE THIS INSIDE THE FUNCTION)
+    let totalShifts = 0;
+    let doubleAssignments = 0;
+    let singleAssignments = 0;
+    let noIsolation = 0;
+    let oneIsolation = 0;
+    let twoIsolations = 0;
+    let pacuShifts = 0;
+    let floorShifts = 0;
+    let totalHours = 0;
+
+    Object.keys(shiftData).forEach(dateKey => {
+        const [year] = dateKey.split('-').map(Number);
+        if (year === currentYear) {
+            const shift = shiftData[dateKey];
+            if (shift) {
+                totalShifts++;
+                totalHours += 11.25;
                 
-                csvData.push([
-                    date,
-                    shift.unit,
-                    shift.assignment,
-                    shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
-                    shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
-                    shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
-                    '11.5'
-                ]);
-            });
+                if (shift.assignment === 'Double') {
+                    doubleAssignments++;
+                } else if (shift.assignment === 'Single') {
+                    singleAssignments++;
+                }
+                
+                if (shift.isolation === 'None') {
+                    noIsolation++;
+                } else if (shift.isolation === '1') {
+                    oneIsolation++;
+                } else if (shift.isolation === '2') {
+                    twoIsolations++;
+                }
+                
+                if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
+                    pacuShifts++;
+                }
+                
+                if (shift.unit === 'Floor') {
+                    floorShifts++;
+                }
+            }
+        }
+    });
 
-            const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        };
+    const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
+    const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
+    const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
+    const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
+    const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
+    const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
+    const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
 
-        window.exportToJSON = function() {
-            const exportData = {
-                exportDate: new Date().toISOString(),
-                shiftData: shiftData
-            };
+    // Add statistics to CSV
+    csvData.push(['']);
+    csvData.push(['']);
+    csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
+    csvData.push(['Category', 'Count', 'Percentage']);
+    csvData.push(['Total Shifts', totalShifts, '']);
+    csvData.push(['Total Hours', totalHours, '']);
+    csvData.push(['Double Assignments', doubleAssignments, doubleAssignmentPercent + '%']);
+    csvData.push(['Single Assignments', singleAssignments, singleAssignmentPercent + '%']);
+    csvData.push(['No Isolation', noIsolation, noIsolationPercent + '%']);
+    csvData.push(['1 Isolation', oneIsolation, oneIsolationPercent + '%']);
+    csvData.push(['2 Isolations', twoIsolations, twoIsolationPercent + '%']);
+    csvData.push(['PACU Shifts', pacuShifts, pacuPercent + '%']);
+    csvData.push(['Floor Shifts', floorShifts, floorPercent + '%']);
 
-            const jsonContent = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([jsonContent], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        };
+    const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+};
+
 
         // Event listeners
         document.getElementById('shiftModal').addEventListener('click', function(e) {
@@ -1083,8 +1140,6 @@ const firebaseConfig = {
         initFirebase();
 
 // Added after the shift data loop:
-csvData.push(['']);
-csvData.push(['']);
 csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
 csvData.push(['Category', 'Count', 'Percentage']);
 csvData.push(['Total Shifts', totalShifts, '']);
