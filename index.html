@@ -869,40 +869,54 @@
         }
 
         function showLoginScreen() {
-            console.log('🖥️ Showing login screen - TEST VERSION');
-            console.log('🔍 Testing basic operations...');
+            console.log('🖥️ Showing login screen - WORKING VERSION');
             
-            // Test 1: Can we access document?
-            console.log('📄 Document exists:', !!document);
-            
-            // Test 2: Can we access body?
-            console.log('🏠 Body exists:', !!document.body);
-            
-            // Test 3: Can we find container?
             const container = document.querySelector('.container');
-            console.log('📦 Container found:', !!container);
-            
-            // Test 4: Simple HTML change
             if (container) {
-                console.log('✏️ Attempting simple HTML change...');
-                try {
-                    container.style.background = 'red';
-                    console.log('✅ Style change successful');
-                    
-                    container.innerHTML = '<h1>SIGN IN TEST</h1><button onclick="testButton()">CLICK ME</button>';
-                    console.log('✅ HTML change successful');
-                } catch (error) {
-                    console.error('❌ HTML change failed:', error);
-                }
+                console.log('✏️ Setting up Google sign-in...');
+                
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; background: white; border-radius: 20px; margin: 50px;">
+                        <h1>🏥 Nursing Shift Tracker</h1>
+                        <p style="margin: 20px 0;">Please sign in with your approved Google account</p>
+                        <button onclick="actualGoogleSignIn()" style="
+                            background: #4285f4; 
+                            color: white; 
+                            border: none; 
+                            padding: 15px 30px; 
+                            border-radius: 8px; 
+                            font-size: 16px; 
+                            margin: 20px; 
+                            cursor: pointer;
+                        ">
+                            Sign in with Google
+                        </button>
+                    </div>
+                `;
+                
+                console.log('✅ Google sign-in HTML ready');
             }
-            
-            console.log('🏁 showLoginScreen function completed');
         }
         
-        // Test button function
-        window.testButton = function() {
-            alert('Test button works!');
-            console.log('🔘 Test button clicked');
+        // Actual Google sign-in function
+        window.actualGoogleSignIn = async function() {
+            console.log('🔘 Google sign-in button clicked!');
+            console.log('🔑 Starting Google authentication...');
+            
+            try {
+                console.log('📤 Creating Google provider...');
+                const provider = new GoogleAuthProvider();
+                
+                console.log('📤 Calling signInWithRedirect...');
+                await signInWithRedirect(auth, provider);
+                
+                console.log('✅ Redirect should have started');
+                // Note: Page will redirect, so we won't see this message
+                
+            } catch (error) {
+                console.error('❌ Google sign-in error:', error);
+                alert('Sign-in failed: ' + error.message);
+            }
         };
 
         function showAccessDeniedScreen(user) {
