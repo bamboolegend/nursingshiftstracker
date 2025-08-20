@@ -29,8 +29,8 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
+            padding: 15px;
+            margin-bottom: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
@@ -38,13 +38,13 @@
         .header h1 {
             color: #2d3748;
             margin-bottom: 10px;
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 700;
         }
 
         .header p {
             color: #4a5568;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
         }
 
         .connection-status {
@@ -176,7 +176,13 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+	    max-width: 100%；
+	    word-wrap: break-word；
+	    white-space: nowrap；
+	        overflow: hidden；
+	       text-overflow: ellipsis；
+ 	    flex-shrink: 0
             gap: 3px;
             margin-top: 20px;
         }
@@ -472,26 +478,53 @@
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
-                padding: 10px;
+                padding: 8px;
             }
 
+    .controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+
+
+    .month-nav {
+        order: 1;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .export-controls {
+        order: 2;
+        margin-left: 0;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+
             .calendar {
-                padding: 15px;
+                padding: 12px;
+		overflow-x: auto;
             }
 
             .calendar-day {
                 min-height: 80px;
                 padding: 4px;
             }
+	    
+	    .calendar-grid {
+                grid-template-columns: repeat(7, minmax(38px, 1fr));
+		gap: 1px;
+            }
 
             .day-number {
                 font-size: 0.8rem;
-                margin-bottom: 4px;
+                margin-bottom: 3px;
             }
 
             .shift-tag {
                 font-size: 0.5rem;
-                padding: 1px 4px;
+                padding: 1px 3px;
             }
 
             .stats-grid {
@@ -512,6 +545,79 @@
             }
         }
 
+
+        @media (max-width: 320px) {
+
+    .container {
+        padding: 5px;
+    }
+
+    .calendar {
+        padding: 8px;
+    }
+
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(35px, 1fr));
+        gap: 1px;
+        min-width: 260px;
+    }
+
+    .calendar-day {
+        min-height: 60px;
+        padding: 2px;
+    }
+
+    .day-number {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
+
+    .shift-tag {
+        font-size: 0.4rem;
+        padding: 1px 2px;
+        border-radius: 4px;
+    }
+
+    .add-shift-btn {
+        font-size: 0.5rem;
+        padding: 1px;
+        border-radius: 4px;
+    }
+
+    .shift-info {
+        gap: 1px;
+    }
+}
+
+/* Ultra narrow (Galaxy Z Fold folded mode) */
+@media (max-width: 280px) {
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .calendar-day {
+        min-height: 55px;
+        padding: 1px;
+    }
+
+    .day-number {
+        font-size: 0.65rem;
+        margin-bottom: 1px;
+    }
+
+    .shift-tag {
+        font-size: 0.35rem;
+        padding: 0px 2px;
+        border-radius: 3px;
+    }
+
+    .add-shift-btn {
+        font-size: 0.45rem;
+        padding: 1px;
+    }
+}
         @media (hover: none) {
             .calendar-day:hover,
             .nav-btn:hover,
@@ -527,7 +633,7 @@
     <div class="container">
         <div class="header">
             <h1>🏥 Nursing Shift Tracker</h1>
-            <p>Track your nursing shifts, assignments, and workload patterns</p>
+            <p>Track your nursing assignments and workload</p>
             <div class="connection-status loading" id="connectionStatus">
                 <div class="status-dot"></div>
                 <span>Connecting to database...</span>
