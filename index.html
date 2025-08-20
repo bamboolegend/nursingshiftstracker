@@ -869,40 +869,41 @@
         }
 
         function showLoginScreen() {
-            console.log('🖥️ Showing login screen - SIMPLIFIED VERSION');
+            console.log('🖥️ Showing login screen - TEST VERSION');
+            console.log('🔍 Testing basic operations...');
             
-            // Skip all the complex HTML - just add a simple button to existing page
+            // Test 1: Can we access document?
+            console.log('📄 Document exists:', !!document);
+            
+            // Test 2: Can we access body?
+            console.log('🏠 Body exists:', !!document.body);
+            
+            // Test 3: Can we find container?
             const container = document.querySelector('.container');
+            console.log('📦 Container found:', !!container);
+            
+            // Test 4: Simple HTML change
             if (container) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 50px;">
-                        <h1>🏥 Nursing Shift Tracker</h1>
-                        <p>Please sign in to continue</p>
-                        <button style="background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; margin: 20px; cursor: pointer;">
-                            Sign in with Google
-                        </button>
-                    </div>
-                `;
-                
-                // Add click handler to the button
-                const btn = container.querySelector('button');
-                if (btn) {
-                    btn.onclick = async function() {
-                        alert('Button clicked! Starting redirect...');
-                        console.log('🚀 REDIRECT STARTING...');
-                        
-                        try {
-                            const provider = new GoogleAuthProvider();
-                            await signInWithRedirect(auth, provider);
-                        } catch (error) {
-                            alert('Error: ' + error.message);
-                            console.error('Error:', error);
-                        }
-                    };
-                    console.log('✅ SIMPLIFIED button ready');
+                console.log('✏️ Attempting simple HTML change...');
+                try {
+                    container.style.background = 'red';
+                    console.log('✅ Style change successful');
+                    
+                    container.innerHTML = '<h1>SIGN IN TEST</h1><button onclick="testButton()">CLICK ME</button>';
+                    console.log('✅ HTML change successful');
+                } catch (error) {
+                    console.error('❌ HTML change failed:', error);
                 }
             }
+            
+            console.log('🏁 showLoginScreen function completed');
         }
+        
+        // Test button function
+        window.testButton = function() {
+            alert('Test button works!');
+            console.log('🔘 Test button clicked');
+        };
 
         function showAccessDeniedScreen(user) {
             console.log('❌ Showing access denied screen for:', user.email);
