@@ -645,16 +645,16 @@
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
         import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
-  authDomain: "nursing-shift-tracker.firebaseapp.com",
-  databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
-  projectId: "nursing-shift-tracker",
-  storageBucket: "nursing-shift-tracker.firebasestorage.app",
-  messagingSenderId: "911404850414",
-  appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
-  measurementId: "G-QMM1YG26K5"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqVFoYzI4HEAViDkodV8OnLa3YDol_EaY",
+            authDomain: "team-carpool-calendar.firebaseapp.com",
+            databaseURL: "https://team-carpool-calendar-default-rtdb.firebaseio.com",
+            projectId: "team-carpool-calendar",
+            storageBucket: "team-carpool-calendar.firebasestorage.app",
+            messagingSenderId: "415611592346",
+            appId: "1:415611592346:web:4851832b815f75aabd8923",
+            measurementId: "G-G0XVJ7P0X0"
+        };
 
         let app, database;
         let isFirebaseInitialized = false;
@@ -1051,8 +1051,101 @@ const firebaseConfig = {
         };
 
         window.exportToJSON = function() {
+            const currentYear = new Date().getFullYear();
+            
+            // Calculate statistics
+            let totalShifts = 0;
+            let doubleAssignments = 0;
+            let singleAssignments = 0;
+            let noIsolation = 0;
+            let oneIsolation = 0;
+            let twoIsolations = 0;
+            let pacuShifts = 0;
+            let floorShifts = 0;
+            let totalHours = 0;
+
+            Object.keys(shiftData).forEach(dateKey => {
+                const [year] = dateKey.split('-').map(Number);
+                if (year === currentYear) {
+                    const shift = shiftData[dateKey];
+                    if (shift) {
+                        totalShifts++;
+                        totalHours += 11.5;
+                        
+                        if (shift.assignment === 'Double') {
+                            doubleAssignments++;
+                        } else if (shift.assignment === 'Single') {
+                            singleAssignments++;
+                        }
+                        
+                        if (shift.isolation === 'None') {
+                            noIsolation++;
+                        } else if (shift.isolation === '1') {
+                            oneIsolation++;
+                        } else if (shift.isolation === '2') {
+                            twoIsolations++;
+                        }
+                        
+                        if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
+                            pacuShifts++;
+                        }
+                        
+                        if (shift.unit === 'Floor') {
+                            floorShifts++;
+                        }
+                    }
+                }
+            });
+
+            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
+            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
+            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
+            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
+            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
+            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
+            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+
             const exportData = {
                 exportDate: new Date().toISOString(),
+                year: currentYear,
+                statistics: {
+                    totalShifts: totalShifts,
+                    totalHours: totalHours,
+                    assignments: {
+                        double: {
+                            count: doubleAssignments,
+                            percentage: doubleAssignmentPercent
+                        },
+                        single: {
+                            count: singleAssignments,
+                            percentage: singleAssignmentPercent
+                        }
+                    },
+                    isolation: {
+                        none: {
+                            count: noIsolation,
+                            percentage: noIsolationPercent
+                        },
+                        one: {
+                            count: oneIsolation,
+                            percentage: oneIsolationPercent
+                        },
+                        two: {
+                            count: twoIsolations,
+                            percentage: twoIsolationPercent
+                        }
+                    },
+                    units: {
+                        pacu: {
+                            count: pacuShifts,
+                            percentage: pacuPercent
+                        },
+                        floor: {
+                            count: floorShifts,
+                            percentage: floorPercent
+                        }
+                    }
+                },
                 shiftData: shiftData
             };
 
@@ -1061,7 +1154,7 @@ const firebaseConfig = {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `nursing-shifts-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             window.URL.revokeObjectURL(url);
         };
