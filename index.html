@@ -748,8 +748,16 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+const APPROVED_EMAILS = [
+    'yvonzh@gmail.com',           // YOUR EMAIL HERE
+
+    // Add more emails as needed
+];
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
