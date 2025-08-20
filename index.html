@@ -870,61 +870,72 @@
 
         function showLoginScreen() {
             console.log('🖥️ Showing login screen');
-            document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
-                    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
-                        <h1 style="margin-bottom: 10px;">🏥 Nursing Shift Tracker</h1>
-                        <p style="margin: 20px 0; color: #666;">Please sign in with your approved Google account</p>
-                        <p style="margin: 10px 0; font-size: 0.8rem; color: #999;">Version 4.0 - Debug Auth</p>
-                        <button id="googleSignInBtn" style="
-                            background: #4285f4; 
-                            color: white; 
-                            border: none; 
-                            padding: 12px 24px; 
-                            border-radius: 8px; 
-                            font-size: 16px; 
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            gap: 10px;
-                            margin: 0 auto;
-                        ">
-                            Sign in with Google
-                        </button>
+            console.log('📝 About to update innerHTML...');
+            
+            try {
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
+                        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
+                            <h1 style="margin-bottom: 10px;">🏥 Nursing Shift Tracker</h1>
+                            <p style="margin: 20px 0; color: #666;">Please sign in with your approved Google account</p>
+                            <p style="margin: 10px 0; font-size: 0.8rem; color: #999;">Version 5.0 - Simple Auth</p>
+                            <button id="googleSignInBtn" style="
+                                background: #4285f4; 
+                                color: white; 
+                                border: none; 
+                                padding: 12px 24px; 
+                                border-radius: 8px; 
+                                font-size: 16px; 
+                                cursor: pointer;
+                                display: block;
+                                margin: 20px auto;
+                                width: 200px;
+                            ">
+                                Sign in with Google
+                            </button>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+                console.log('✅ HTML updated successfully');
+            } catch (error) {
+                console.error('❌ Error updating HTML:', error);
+                return;
+            }
             
-            console.log('📝 HTML updated, searching for button...');
+            console.log('⏰ Setting up button listener...');
             
-            // Add event listener directly
+            // Use a longer timeout and more robust method
             setTimeout(() => {
-                console.log('⏰ Timeout fired, looking for button...');
-                const btn = document.getElementById('googleSignInBtn');
-                console.log('🔍 Button found:', !!btn);
-                
-                if (btn) {
-                    console.log('🔗 Adding event listener...');
-                    btn.addEventListener('click', async function() {
-                        console.log('🔘 Button clicked!');
-                        console.log('🔑 Attempting Google sign-in...');
-                        console.log('🔄 Using redirect sign-in (COOP policy)');
-                        
-                        try {
-                            const provider = new GoogleAuthProvider();
-                            console.log('📤 Starting redirect...');
-                            await signInWithRedirect(auth, provider);
-                            console.log('✅ Redirect initiated');
-                        } catch (error) {
-                            console.error('❌ Sign-in error:', error);
-                            alert('Sign-in failed: ' + error.message);
-                        }
-                    });
-                    console.log('✅ Button event listener added');
-                } else {
-                    console.error('❌ Button not found');
+                try {
+                    console.log('🔍 Looking for button...');
+                    const btn = document.getElementById('googleSignInBtn');
+                    console.log('🔍 Button element:', btn);
+                    
+                    if (btn) {
+                        console.log('🔗 Adding click listener...');
+                        btn.onclick = async function() {
+                            console.log('🔘 BUTTON CLICKED!!!');
+                            alert('Button clicked! Check console for redirect...');
+                            
+                            try {
+                                console.log('🔑 Starting sign-in process...');
+                                const provider = new GoogleAuthProvider();
+                                console.log('📤 Calling signInWithRedirect...');
+                                await signInWithRedirect(auth, provider);
+                                console.log('✅ Redirect should have started');
+                            } catch (error) {
+                                console.error('❌ Sign-in error:', error);
+                                alert('Error: ' + error.message);
+                            }
+                        };
+                        console.log('✅ Click handler added successfully');
+                    } else {
+                        console.error('❌ Button element not found');
+                    }
+                } catch (error) {
+                    console.error('❌ Error setting up button:', error);
                 }
-            }, 100);
+            }, 500);
         }
 
         function showAccessDeniedScreen(user) {
