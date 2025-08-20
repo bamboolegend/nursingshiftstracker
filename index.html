@@ -869,73 +869,39 @@
         }
 
         function showLoginScreen() {
-            console.log('🖥️ Showing login screen');
-            console.log('📝 About to update innerHTML...');
+            console.log('🖥️ Showing login screen - SIMPLIFIED VERSION');
             
-            try {
-                document.body.innerHTML = `
-                    <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
-                        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
-                            <h1 style="margin-bottom: 10px;">🏥 Nursing Shift Tracker</h1>
-                            <p style="margin: 20px 0; color: #666;">Please sign in with your approved Google account</p>
-                            <p style="margin: 10px 0; font-size: 0.8rem; color: #999;">Version 5.0 - Simple Auth</p>
-                            <button id="googleSignInBtn" style="
-                                background: #4285f4; 
-                                color: white; 
-                                border: none; 
-                                padding: 12px 24px; 
-                                border-radius: 8px; 
-                                font-size: 16px; 
-                                cursor: pointer;
-                                display: block;
-                                margin: 20px auto;
-                                width: 200px;
-                            ">
-                                Sign in with Google
-                            </button>
-                        </div>
+            // Skip all the complex HTML - just add a simple button to existing page
+            const container = document.querySelector('.container');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <h1>🏥 Nursing Shift Tracker</h1>
+                        <p>Please sign in to continue</p>
+                        <button style="background: #4285f4; color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 16px; margin: 20px; cursor: pointer;">
+                            Sign in with Google
+                        </button>
                     </div>
                 `;
-                console.log('✅ HTML updated successfully');
-            } catch (error) {
-                console.error('❌ Error updating HTML:', error);
-                return;
-            }
-            
-            console.log('⏰ Setting up button listener...');
-            
-            // Use a longer timeout and more robust method
-            setTimeout(() => {
-                try {
-                    console.log('🔍 Looking for button...');
-                    const btn = document.getElementById('googleSignInBtn');
-                    console.log('🔍 Button element:', btn);
-                    
-                    if (btn) {
-                        console.log('🔗 Adding click listener...');
-                        btn.onclick = async function() {
-                            console.log('🔘 BUTTON CLICKED!!!');
-                            alert('Button clicked! Check console for redirect...');
-                            
-                            try {
-                                console.log('🔑 Starting sign-in process...');
-                                const provider = new GoogleAuthProvider();
-                                console.log('📤 Calling signInWithRedirect...');
-                                await signInWithRedirect(auth, provider);
-                                console.log('✅ Redirect should have started');
-                            } catch (error) {
-                                console.error('❌ Sign-in error:', error);
-                                alert('Error: ' + error.message);
-                            }
-                        };
-                        console.log('✅ Click handler added successfully');
-                    } else {
-                        console.error('❌ Button element not found');
-                    }
-                } catch (error) {
-                    console.error('❌ Error setting up button:', error);
+                
+                // Add click handler to the button
+                const btn = container.querySelector('button');
+                if (btn) {
+                    btn.onclick = async function() {
+                        alert('Button clicked! Starting redirect...');
+                        console.log('🚀 REDIRECT STARTING...');
+                        
+                        try {
+                            const provider = new GoogleAuthProvider();
+                            await signInWithRedirect(auth, provider);
+                        } catch (error) {
+                            alert('Error: ' + error.message);
+                            console.error('Error:', error);
+                        }
+                    };
+                    console.log('✅ SIMPLIFIED button ready');
                 }
-            }, 500);
+            }
         }
 
         function showAccessDeniedScreen(user) {
