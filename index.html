@@ -776,6 +776,20 @@
             <h3>Add Shift for <span id="selectedDate"></span></h3>
             
             <div class="form-group">
+                <label for="shiftType">Shift Type</label>
+                <select id="shiftType" required>
+                    <option value="">Select Shift Type</option>
+                    <option value="D">D - Day Shift</option>
+                    <option value="N">N - Night Shift</option>
+                    <option value="M">M - Mid-Day Shift</option>
+                    <option value="O">O - Other Shift</option>
+                    <option value="S">S - Sick Call</option>
+                    <option value="V">V - Vacation</option>
+                    <option value="RV">RV - Requested Vacation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="unit">Unit</label>
                 <select id="unit" required>
                     <option value="">Select Unit</option>
@@ -879,7 +893,7 @@ const firebaseConfig = {
 };
 
         // Password protection
-        const APP_PASSWORD = '7997'; // Change this to your desired password
+        const APP_PASSWORD = 'nurse2025'; // Change this to your desired password
 
         window.checkPassword = function() {
             const passwordInput = document.getElementById('passwordInput');
@@ -1017,6 +1031,22 @@ const firebaseConfig = {
                 shiftInfo.className = 'shift-info';
 
                 if (dayData) {
+                    // Add shift type tag first
+                    const shiftTypeTag = document.createElement('div');
+                    shiftTypeTag.className = 'shift-tag shift-type';
+                    shiftTypeTag.textContent = dayData.shiftType;
+                    
+                    // Style shift type tags with different colors
+                    if (['D', 'M', 'O'].includes(dayData.shiftType)) {
+                        shiftTypeTag.style.background = 'linear-gradient(135deg, #48bb78, #38a169)'; // Green for day shifts
+                    } else if (dayData.shiftType === 'N') {
+                        shiftTypeTag.style.background = 'linear-gradient(135deg, #2d3748, #4a5568)'; // Dark for night
+                    } else if (['S', 'V', 'RV'].includes(dayData.shiftType)) {
+                        shiftTypeTag.style.background = 'linear-gradient(135deg, #9f7aea, #805ad5)'; // Purple for time off
+                    }
+                    
+                    shiftInfo.appendChild(shiftTypeTag);
+
                     const unitTag = document.createElement('div');
                     unitTag.className = 'shift-tag';
                     
@@ -1078,6 +1108,7 @@ const firebaseConfig = {
             document.getElementById('selectedDate').textContent = date.toLocaleDateString();
             
             // Reset form
+            document.getElementById('shiftType').value = '';
             document.getElementById('unit').value = '';
             document.getElementById('assignment').value = '';
             document.getElementById('isolation').value = '';
@@ -1091,9 +1122,11 @@ const firebaseConfig = {
             document.getElementById('shiftModal').classList.remove('active');
             selectedDay = null;
             selectedDateKey = null;
+            currentShiftId = null; // Reset when closing modal
         };
 
         window.addShift = async function() {
+            const shiftType = document.getElementById('shiftType').value;
             const unit = document.getElementById('unit').value;
             const assignment = document.getElementById('assignment').value;
             const isolation = document.getElementById('isolation').value;
@@ -1104,13 +1137,19 @@ const firebaseConfig = {
                 treatments.push(cb.value);
             });
 
+            if (!shiftType) {
+                alert('Please select a shift type');
+                return;
+            }
+
             if (!unit) {
                 alert('Please select a unit');
                 return;
             }
 
             const shiftRecord = {
-                id: Date.now().toString(),
+                id: currentShiftId || Date.now().toString(), // Use existing ID if editing
+                shiftType,
                 unit,
                 assignment: assignment || 'Not specified',
                 isolation: isolation || 'Not specified',
@@ -1119,6 +1158,18 @@ const firebaseConfig = {
                 date: selectedDateKey,
                 createdAt: new Date().toISOString()
             };
+
+            try {
+                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
+                await set(shiftRef, shiftRecord);
+                closeModal();
+                // Reset currentShiftId after saving
+                currentShiftId = null;
+            } catch (error) {
+                console.error('Error adding shift:', error);
+                alert('Failed to add shift: ' + error.message);
+            }
+        };
 
             try {
                 const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
@@ -1140,6 +1191,7 @@ const firebaseConfig = {
             const details = document.getElementById('shiftDetails');
             details.innerHTML = `
                 <div style="margin-bottom: 15px;">
+                    <strong>Shift Type:</strong> ${shift.shiftType}<br>
                     <strong>Unit:</strong> ${shift.unit}<br>
                     <strong>Assignment:</strong> ${shift.assignment && shift.assignment !== 'Not specified' ? shift.assignment : 'Not specified'}<br>
                     <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
@@ -1164,11 +1216,15 @@ const firebaseConfig = {
             
             closeViewModal();
             
+            // Set currentShiftId to preserve the existing shift ID
+            currentShiftId = shift.id;
+            
             // Pre-populate the add shift modal with existing data
             document.getElementById('selectedDate').textContent = selectedDay.toLocaleDateString();
-            document.getElementById('unit').value = shift.unit;
-            document.getElementById('assignment').value = shift.assignment;
-            document.getElementById('isolation').value = shift.isolation;
+            document.getElementById('shiftType').value = shift.shiftType || '';
+            document.getElementById('unit').value = shift.unit || '';
+            document.getElementById('assignment').value = shift.assignment || '';
+            document.getElementById('isolation').value = shift.isolation || '';
             document.getElementById('comments').value = shift.comments || '';
             
             // Set checkboxes
@@ -1207,7 +1263,13 @@ const firebaseConfig = {
             let twoIsolations = 0;
             let pacuShifts = 0;
             let floorShifts = 0;
-            let totalHours = 0;
+            let dayShifts = 0;
+            let nightShifts = 0;
+            let midDayShifts = 0;
+            let otherShifts = 0;
+            let sickCalls = 0;
+            let vacations = 0;
+            let requestedVacations = 0;
 
             Object.keys(shiftData).forEach(dateKey => {
                 const [year] = dateKey.split('-').map(Number);
@@ -1216,6 +1278,23 @@ const firebaseConfig = {
                     if (shift) {
                         totalShifts++;
                         totalHours += 11.25;
+                        
+                        // Count shift types
+                        if (shift.shiftType === 'D') {
+                            dayShifts++;
+                        } else if (shift.shiftType === 'N') {
+                            nightShifts++;
+                        } else if (shift.shiftType === 'M') {
+                            midDayShifts++;
+                        } else if (shift.shiftType === 'O') {
+                            otherShifts++;
+                        } else if (shift.shiftType === 'S') {
+                            sickCalls++;
+                        } else if (shift.shiftType === 'V') {
+                            vacations++;
+                        } else if (shift.shiftType === 'RV') {
+                            requestedVacations++;
+                        }
                         
                         // Count assignments
                         if (shift.assignment === 'Double') {
@@ -1245,6 +1324,9 @@ const firebaseConfig = {
                 }
             });
 
+            const dayShiftPercent = totalShifts > 0 ? Math.round((dayShifts / totalShifts) * 100) : 0;
+            const nightShiftPercent = totalShifts > 0 ? Math.round((nightShifts / totalShifts) * 100) : 0;
+            const midDayShiftPercent = totalShifts > 0 ? Math.round((midDayShifts / totalShifts) * 100) : 0;
             const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
             const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
             const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
@@ -1256,6 +1338,13 @@ const firebaseConfig = {
             const stats = [
                 { label: 'Total Shifts', value: totalShifts },
                 { label: 'Total Hours', value: totalHours },
+                { label: 'Day Shifts (D)', value: `${dayShifts} (${dayShiftPercent}%)` },
+                { label: 'Night Shifts (N)', value: `${nightShifts} (${nightShiftPercent}%)` },
+                { label: 'Mid-Day Shifts (M)', value: `${midDayShifts} (${midDayShiftPercent}%)` },
+                { label: 'Other Shifts (O)', value: otherShifts },
+                { label: 'Sick Calls (S)', value: sickCalls },
+                { label: 'Vacations (V)', value: vacations },
+                { label: 'Requested Vacations (RV)', value: requestedVacations },
                 { label: 'Double Assignments', value: `${doubleAssignments} (${doubleAssignmentPercent}%)` },
                 { label: 'Single Assignments', value: `${singleAssignments} (${singleAssignmentPercent}%)` },
                 { label: 'No Isolation', value: `${noIsolation} (${noIsolationPercent}%)` },
@@ -1282,7 +1371,7 @@ const firebaseConfig = {
             
             // Add header for shift data
             csvData.push(['SHIFT DATA']);
-            csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
+            csvData.push(['Date', 'Shift Type', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
 
             // Add shift data
             Object.keys(shiftData).forEach(dateKey => {
@@ -1291,6 +1380,7 @@ const firebaseConfig = {
                 
                 csvData.push([
                     date,
+                    shift.shiftType,
                     shift.unit,
                     shift.assignment,
                     shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
