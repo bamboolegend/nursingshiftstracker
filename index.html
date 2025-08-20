@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nursing Shift Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .connection-status.connected {
+            background: rgba(72, 187, 120, 0.1);
+            color: #38a169;
+        }
+
+        .connection-status.disconnected {
+            background: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+        }
+
+        .connection-status.loading {
+            background: rgba(237, 137, 54, 0.1);
+            color: #dd6b20;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            min-width: 70px;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .current-month {
+            font-size: 1.2rem;
+            min-width: auto;
+            flex: 1;
+            text-align: center;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 700;
+        }
+
+        .export-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            min-height: 44px;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .calendar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .calendar-day {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            min-height: 120px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            touch-action: manipulation;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            background: #edf2f7;
+            border-color: #4299e1;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day.other-month {
+            background: #f1f5f9;
+            color: #a0aec0;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: #2d3748;
+            border-color: #dd6b20;
+            font-weight: 600;
+        }
+
+        .calendar-day.today .day-number {
+            color: #2d3748;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .day-number {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .shift-info {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 0.7rem;
+        }
+
+        .shift-tag {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.6rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .shift-tag:hover {
+            transform: scale(1.02);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .shift-tag.icu {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+
+        .shift-tag.pacu {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        .shift-tag.floor {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+        }
+
+        .add-shift-btn {
+            background: rgba(66, 153, 225, 0.1);
+            border: 2px dashed #4299e1;
+            color: #4299e1;
+            padding: 4px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            margin-top: 2px;
+            touch-action: manipulation;
+        }
+
+        .add-shift-btn:hover {
+            background: rgba(66, 153, 225, 0.2);
+            transform: scale(1.02);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.9) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal h3 {
+            margin-bottom: 20px;
+            color: #2d3748;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            min-height: 40px;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            min-height: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .modal-btn.danger {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .calendar {
+                padding: 15px;
+            }
+
+            .calendar-day {
+                min-height: 80px;
+                padding: 4px;
+            }
+
+            .day-number {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+
+            .shift-tag {
+                font-size: 0.5rem;
+                padding: 1px 4px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 10px;
+            }
+
+            .stat-number {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (hover: none) {
+            .calendar-day:hover,
+            .nav-btn:hover,
+            .export-btn:hover,
+            .modal-btn:hover {
+                transform: none;
+                box-shadow: initial;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Nursing Shift Tracker</h1>
+            <p>Track your nursing shifts, assignments, and workload patterns</p>
+            <div class="connection-status loading" id="connectionStatus">
+                <div class="status-dot"></div>
+                <span>Connecting to database...</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="month-nav">
+                <button class="nav-btn" onclick="changeMonth(-1)">← Previous</button>
+                <div class="current-month" id="currentMonth"></div>
+                <button class="nav-btn" onclick="changeMonth(1)">Next →</button>
+            </div>
+            <div class="export-controls">
+                <button class="export-btn" onclick="exportToCSV()">📊 Export CSV</button>
+                <button class="export-btn" onclick="exportToJSON()">📋 Export JSON</button>
+            </div>
+        </div>
+
+        <div class="calendar">
+            <div class="calendar-grid" id="calendar"></div>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Annual Statistics (Jan 1 - Dec 31, <span id="currentYear"></span>)</h3>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Add Shift Modal -->
+    <div class="modal" id="shiftModal">
+        <div class="modal-content">
+            <h3>Add Shift for <span id="selectedDate"></span></h3>
+            
+            <div class="form-group">
+                <label for="unit">Unit</label>
+                <select id="unit" required>
+                    <option value="">Select Unit</option>
+                    <option value="MSICU">MSICU</option>
+                    <option value="CVICU">CVICU</option>
+                    <option value="CCU">CCU</option>
+                    <option value="MSNICU">MSNICU</option>
+                    <option value="TGPACU">TGPACU</option>
+                    <option value="TWPACU">TWPACU</option>
+                    <option value="Floor">Floor</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="assignment">Assignment Type (Optional)</label>
+                <select id="assignment">
+                    <option value="">Select Assignment</option>
+                    <option value="Single">Single Patient</option>
+                    <option value="Double">Double Assignment</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="isolation">Isolation (Optional)</label>
+                <select id="isolation">
+                    <option value="">Select Isolation</option>
+                    <option value="None">No Isolation</option>
+                    <option value="1">1 Isolation</option>
+                    <option value="2">2 Isolations</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Special Treatments</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="sled" value="SLED">
+                        <label for="sled">SLED</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="paline" value="PA Line">
+                        <label for="paline">PA Line</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="admission" value="Admission">
+                        <label for="admission">Admission</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ecmo" value="ECMO">
+                        <label for="ecmo">ECMO</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="comments">Comments</label>
+                <textarea id="comments" rows="3" placeholder="Any additional notes about this shift..."></textarea>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addShift()">Add Shift</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Shift Modal -->
+    <div class="modal" id="viewShiftModal">
+        <div class="modal-content">
+            <h3>📅 Shift Details - <span id="viewShiftDate"></span></h3>
+            <div id="shiftDetails"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn danger" onclick="deleteShift()" id="deleteBtn">Delete Shift</button>
+                <button class="modal-btn secondary" onclick="closeViewModal()">Close</button>
+                <button class="modal-btn primary" onclick="editShift()" id="editBtn">Edit Shift</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqVFoYzI4HEAViDkodV8OnLa3YDol_EaY",
+            authDomain: "team-carpool-calendar.firebaseapp.com",
+            databaseURL: "https://team-carpool-calendar-default-rtdb.firebaseio.com",
+            projectId: "team-carpool-calendar",
+            storageBucket: "team-carpool-calendar.firebasestorage.app",
+            messagingSenderId: "415611592346",
+            appId: "1:415611592346:web:4851832b815f75aabd8923",
+            measurementId: "G-G0XVJ7P0X0"
+        };
+
+        let app, database;
+        let isFirebaseInitialized = false;
+        let currentDate = new Date();
+        let selectedDay = null;
+        let selectedDateKey = null;
+        let shiftData = {};
+        let currentShiftId = null;
+
+        async function initFirebase() {
+            try {
+                app = initializeApp(firebaseConfig);
+                database = getDatabase(app);
+                
+                updateConnectionStatus('connected', 'Connected to database');
+                isFirebaseInitialized = true;
+                
+                setupRealtimeListener();
+                renderCalendar();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                updateConnectionStatus('disconnected', 'Connection failed: ' + error.message);
+            }
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = `connection-status ${status}`;
+            statusElement.querySelector('span').textContent = message;
+        }
+
+        function setupRealtimeListener() {
+            if (!isFirebaseInitialized) return;
+            
+            const shiftsRef = ref(database, 'nursing-shifts');
+            onValue(shiftsRef, (snapshot) => {
+                const data = snapshot.val();
+                shiftData = data || {};
+                renderCalendar();
+                updateStats();
+            }, (error) => {
+                console.error('Database read error:', error);
+                updateConnectionStatus('disconnected', 'Error reading from database: ' + error.message);
+            });
+        }
+
+        window.changeMonth = function(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderCalendar();
+        };
+
+        function getDateKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthElement = document.getElementById('currentMonth');
+            
+            monthElement.textContent = currentDate.toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            calendar.innerHTML = '';
+
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach((day) => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendar.appendChild(header);
+            });
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const today = new Date();
+
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                calendar.appendChild(emptyDay);
+            }
+
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const dateKey = getDateKey(date);
+                const dayData = shiftData[dateKey];
+                
+                if (date.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+
+                const shiftInfo = document.createElement('div');
+                shiftInfo.className = 'shift-info';
+
+                if (dayData) {
+                    const unitTag = document.createElement('div');
+                    unitTag.className = 'shift-tag';
+                    
+                    if (['TGPACU', 'TWPACU'].includes(dayData.unit)) {
+                        unitTag.classList.add('pacu');
+                    } else if (dayData.unit === 'Floor') {
+                        unitTag.classList.add('floor');
+                    } else {
+                        unitTag.classList.add('icu');
+                    }
+                    
+                    unitTag.textContent = dayData.unit;
+                    shiftInfo.appendChild(unitTag);
+
+                    if (dayData.assignment === 'Double') {
+                        const assignmentTag = document.createElement('div');
+                        assignmentTag.className = 'shift-tag';
+                        assignmentTag.style.background = 'linear-gradient(135deg, #ed8936, #dd6b20)';
+                        assignmentTag.textContent = 'Double';
+                        shiftInfo.appendChild(assignmentTag);
+                    }
+
+                    if (dayData.isolation && dayData.isolation !== 'None' && dayData.isolation !== 'Not specified') {
+                        const isolationTag = document.createElement('div');
+                        isolationTag.className = 'shift-tag';
+                        isolationTag.style.background = 'linear-gradient(135deg, #9f7aea, #805ad5)';
+                        isolationTag.textContent = `${dayData.isolation} ISO`;
+                        shiftInfo.appendChild(isolationTag);
+                    }
+
+                    if (dayData.treatments && dayData.treatments.length > 0) {
+                        const treatmentTag = document.createElement('div');
+                        treatmentTag.className = 'shift-tag';
+                        treatmentTag.style.background = 'linear-gradient(135deg, #38b2ac, #319795)';
+                        treatmentTag.textContent = dayData.treatments.join(', ');
+                        shiftInfo.appendChild(treatmentTag);
+                    }
+
+                    dayElement.onclick = () => viewShift(date, dayData);
+                } else {
+                    const addBtn = document.createElement('div');
+                    addBtn.className = 'add-shift-btn';
+                    addBtn.textContent = '+ Add Shift';
+                    addBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        openModal(date);
+                    };
+                    shiftInfo.appendChild(addBtn);
+                }
+
+                dayElement.appendChild(shiftInfo);
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        window.openModal = function(date) {
+            selectedDay = date;
+            selectedDateKey = getDateKey(date);
+            document.getElementById('selectedDate').textContent = date.toLocaleDateString();
+            
+            // Reset form
+            document.getElementById('unit').value = '';
+            document.getElementById('assignment').value = '';
+            document.getElementById('isolation').value = '';
+            document.getElementById('comments').value = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            
+            document.getElementById('shiftModal').classList.add('active');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('shiftModal').classList.remove('active');
+            selectedDay = null;
+            selectedDateKey = null;
+        };
+
+        window.addShift = async function() {
+            const unit = document.getElementById('unit').value;
+            const assignment = document.getElementById('assignment').value;
+            const isolation = document.getElementById('isolation').value;
+            const comments = document.getElementById('comments').value;
+            
+            const treatments = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+                treatments.push(cb.value);
+            });
+
+            if (!unit) {
+                alert('Please select a unit');
+                return;
+            }
+
+            const shiftRecord = {
+                id: Date.now().toString(),
+                unit,
+                assignment: assignment || 'Not specified',
+                isolation: isolation || 'Not specified',
+                treatments,
+                comments,
+                date: selectedDateKey,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
+                await set(shiftRef, shiftRecord);
+                closeModal();
+            } catch (error) {
+                console.error('Error adding shift:', error);
+                alert('Failed to add shift: ' + error.message);
+            }
+        };
+
+        window.viewShift = function(date, shift) {
+            selectedDay = date;
+            selectedDateKey = getDateKey(date);
+            currentShiftId = shift.id;
+            
+            document.getElementById('viewShiftDate').textContent = date.toLocaleDateString();
+            
+            const details = document.getElementById('shiftDetails');
+            details.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Unit:</strong> ${shift.unit}<br>
+                    <strong>Assignment:</strong> ${shift.assignment && shift.assignment !== 'Not specified' ? shift.assignment : 'Not specified'}<br>
+                    <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
+                    <strong>Special Treatments:</strong> ${shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None'}<br>
+                    ${shift.comments ? `<strong>Comments:</strong><br>${shift.comments.replace(/\n/g, '<br>')}` : ''}
+                </div>
+            `;
+            
+            document.getElementById('viewShiftModal').classList.add('active');
+        };
+
+        window.closeViewModal = function() {
+            document.getElementById('viewShiftModal').classList.remove('active');
+            selectedDay = null;
+            selectedDateKey = null;
+            currentShiftId = null;
+        };
+
+        window.editShift = function() {
+            const shift = shiftData[selectedDateKey];
+            if (!shift) return;
+            
+            closeViewModal();
+            
+            // Pre-populate the add shift modal with existing data
+            document.getElementById('selectedDate').textContent = selectedDay.toLocaleDateString();
+            document.getElementById('unit').value = shift.unit;
+            document.getElementById('assignment').value = shift.assignment;
+            document.getElementById('isolation').value = shift.isolation;
+            document.getElementById('comments').value = shift.comments || '';
+            
+            // Set checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = shift.treatments && shift.treatments.includes(cb.value);
+            });
+            
+            document.getElementById('shiftModal').classList.add('active');
+        };
+
+        window.deleteShift = async function() {
+            if (!confirm('Are you sure you want to delete this shift?')) return;
+            
+            try {
+                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
+                await remove(shiftRef);
+                closeViewModal();
+            } catch (error) {
+                console.error('Error deleting shift:', error);
+                alert('Failed to delete shift: ' + error.message);
+            }
+        };
+
+        function updateStats() {
+            const statsGrid = document.getElementById('statsGrid');
+            const currentYear = new Date().getFullYear();
+            document.getElementById('currentYear').textContent = currentYear;
+            
+            statsGrid.innerHTML = '';
+
+            let totalShifts = 0;
+            let doubleAssignments = 0;
+            let singleAssignments = 0;
+            let noIsolation = 0;
+            let oneIsolation = 0;
+            let twoIsolations = 0;
+            let pacuShifts = 0;
+            let floorShifts = 0;
+            let totalHours = 0;
+
+            Object.keys(shiftData).forEach(dateKey => {
+                const [year] = dateKey.split('-').map(Number);
+                if (year === currentYear) {
+                    const shift = shiftData[dateKey];
+                    if (shift) {
+                        totalShifts++;
+                        totalHours += 11.5;
+                        
+                        // Count assignments
+                        if (shift.assignment === 'Double') {
+                            doubleAssignments++;
+                        } else if (shift.assignment === 'Single') {
+                            singleAssignments++;
+                        }
+                        
+                        // Count isolations
+                        if (shift.isolation === 'None') {
+                            noIsolation++;
+                        } else if (shift.isolation === '1') {
+                            oneIsolation++;
+                        } else if (shift.isolation === '2') {
+                            twoIsolations++;
+                        }
+                        
+                        // Count unit types
+                        if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
+                            pacuShifts++;
+                        }
+                        
+                        if (shift.unit === 'Floor') {
+                            floorShifts++;
+                        }
+                    }
+                }
+            });
+
+            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
+            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
+            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
+            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
+            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
+            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
+            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+
+            const stats = [
+                { label: 'Total Shifts', value: totalShifts },
+                { label: 'Total Hours', value: totalHours },
+                { label: 'Double Assignments', value: `${doubleAssignments} (${doubleAssignmentPercent}%)` },
+                { label: 'Single Assignments', value: `${singleAssignments} (${singleAssignmentPercent}%)` },
+                { label: 'No Isolation', value: `${noIsolation} (${noIsolationPercent}%)` },
+                { label: '1 Isolation', value: `${oneIsolation} (${oneIsolationPercent}%)` },
+                { label: '2 Isolations', value: `${twoIsolations} (${twoIsolationPercent}%)` },
+                { label: 'PACU Shifts', value: `${pacuShifts} (${pacuPercent}%)` },
+                { label: 'Floor Shifts', value: `${floorShifts} (${floorPercent}%)` }
+            ];
+
+            stats.forEach(stat => {
+                const card = document.createElement('div');
+                card.className = 'stat-card';
+                card.innerHTML = `
+                    <div class="stat-number">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsGrid.appendChild(card);
+            });
+        }
+
+        window.exportToCSV = function() {
+            const csvData = [];
+            csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
+
+            Object.keys(shiftData).forEach(dateKey => {
+                const shift = shiftData[dateKey];
+                const date = new Date(dateKey).toLocaleDateString();
+                
+                csvData.push([
+                    date,
+                    shift.unit,
+                    shift.assignment,
+                    shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
+                    shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
+                    shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
+                    '11.5'
+                ]);
+            });
+
+            const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nursing-shifts-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+
+        window.exportToJSON = function() {
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                shiftData: shiftData
+            };
+
+            const jsonContent = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nursing-shifts-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+
+        // Event listeners
+        document.getElementById('shiftModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('viewShiftModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeViewModal();
+            }
+        });
+
+        // Initialize Firebase when the page loads
+        initFirebase();
+    </script>
+</body>
+</html>
