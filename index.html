@@ -875,6 +875,7 @@
                     <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
                         <h1 style="margin-bottom: 10px;">🏥 Nursing Shift Tracker</h1>
                         <p style="margin: 20px 0; color: #666;">Please sign in with your approved Google account</p>
+                        <p style="margin: 10px 0; font-size: 0.8rem; color: #999;">Version 3.0 - Redirect Auth</p>
                         <button onclick="signInWithGoogle()" style="
                             background: #4285f4; 
                             color: white; 
@@ -953,19 +954,25 @@
         // Authentication functions
         window.signInWithGoogle = async function() {
             console.log('🔑 Attempting Google sign-in...');
-            
-            // Force redirect for all cases due to COOP policy on GitHub Pages
             console.log('🔄 Using redirect sign-in (COOP policy)');
             
             try {
                 const provider = new GoogleAuthProvider();
+                console.log('📤 Starting redirect...');
                 await signInWithRedirect(auth, provider);
+                console.log('✅ Redirect initiated');
                 // Note: redirect will cause page reload, so we won't reach this line
             } catch (error) {
                 console.error('❌ Sign-in error:', error);
                 alert('Sign-in failed: ' + error.message);
             }
         };
+
+        // Test function availability
+        window.addEventListener('load', function() {
+            console.log('🔧 Testing function availability...');
+            console.log('signInWithGoogle function exists:', typeof window.signInWithGoogle === 'function');
+        });
 
         window.signOutUser = async function() {
             console.log('👋 Signing out...');
