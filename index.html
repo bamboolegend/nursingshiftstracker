@@ -794,6 +794,7 @@
         let currentUser = null;
 
         async function initFirebase() {
+            console.log('🚀 App version: v2.0 - Updated authentication');
             try {
                 app = initializeApp(firebaseConfig);
                 database = getDatabase(app);
