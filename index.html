@@ -5,6 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nursing Shift Tracker</title>
     <style>
+        /* Password Protection Styles */
+        .password-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .password-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .password-header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .password-header p {
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .password-btn {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            min-height: 44px;
+            touch-action: manipulation;
+        }
+
+        .password-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .password-btn:active {
+            transform: scale(0.98);
+        }
+
+        .password-error {
+            color: #e53e3e;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -33,7 +126,6 @@
             margin-bottom: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             text-align: center;
-            position: relative;
         }
 
         .header h1 {
@@ -79,20 +171,6 @@
             height: 8px;
             border-radius: 50%;
             background: currentColor;
-        }
-
-        .sign-out-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #e53e3e;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: none;
         }
 
         .controls {
@@ -192,12 +270,12 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, minmax(0, 1fr));
-            max-width: 100%;
-            word-wrap: break-word;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-shrink: 0;
+	    max-width: 100%ï¼›
+	    word-wrap: break-wordï¼›
+	    white-space: nowrapï¼›
+	        overflow: hiddenï¼›
+	       text-overflow: ellipsisï¼›
+ 	    flex-shrink: 0
             gap: 3px;
             margin-top: 20px;
         }
@@ -496,38 +574,40 @@
                 padding: 8px;
             }
 
-            .controls {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
+    .controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
 
-            .month-nav {
-                order: 1;
-                width: 100%;
-                justify-content: space-between;
-            }
 
-            .export-controls {
-                order: 2;
-                margin-left: 0;
-                justify-content: space-between;
-                width: 100%;
-            }
+    .month-nav {
+        order: 1;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .export-controls {
+        order: 2;
+        margin-left: 0;
+        justify-content: space-between;
+        width: 100%;
+    }
+
 
             .calendar {
                 padding: 12px;
-                overflow-x: auto;
+		overflow-x: auto;
             }
 
             .calendar-day {
                 min-height: 80px;
                 padding: 4px;
             }
-            
-            .calendar-grid {
+	    
+	    .calendar-grid {
                 grid-template-columns: repeat(7, minmax(38px, 1fr));
-                gap: 1px;
+		gap: 1px;
             }
 
             .day-number {
@@ -558,78 +638,79 @@
             }
         }
 
+
         @media (max-width: 320px) {
-            .container {
-                padding: 5px;
-            }
 
-            .calendar {
-                padding: 8px;
-            }
+    .container {
+        padding: 5px;
+    }
 
-            .calendar-grid {
-                grid-template-columns: repeat(7, minmax(35px, 1fr));
-                gap: 1px;
-                min-width: 260px;
-            }
+    .calendar {
+        padding: 8px;
+    }
 
-            .calendar-day {
-                min-height: 60px;
-                padding: 2px;
-            }
+    .calendar-grid {
+        grid-template-columns: repeat(7, minmax(35px, 1fr));
+        gap: 1px;
+        min-width: 260px;
+    }
 
-            .day-number {
-                font-size: 0.7rem;
-                margin-bottom: 2px;
-            }
+    .calendar-day {
+        min-height: 60px;
+        padding: 2px;
+    }
 
-            .shift-tag {
-                font-size: 0.4rem;
-                padding: 1px 2px;
-                border-radius: 4px;
-            }
+    .day-number {
+        font-size: 0.7rem;
+        margin-bottom: 2px;
+    }
 
-            .add-shift-btn {
-                font-size: 0.5rem;
-                padding: 1px;
-                border-radius: 4px;
-            }
+    .shift-tag {
+        font-size: 0.4rem;
+        padding: 1px 2px;
+        border-radius: 4px;
+    }
 
-            .shift-info {
-                gap: 1px;
-            }
-        }
+    .add-shift-btn {
+        font-size: 0.5rem;
+        padding: 1px;
+        border-radius: 4px;
+    }
 
-        /* Ultra narrow (Galaxy Z Fold folded mode) */
-        @media (max-width: 280px) {
-            .calendar-grid {
-                grid-template-columns: repeat(7, 1fr);
-                min-width: 100%;
-                max-width: 100%;
-            }
+    .shift-info {
+        gap: 1px;
+    }
+}
 
-            .calendar-day {
-                min-height: 55px;
-                padding: 1px;
-            }
+/* Ultra narrow (Galaxy Z Fold folded mode) */
+@media (max-width: 280px) {
+    .calendar-grid {
+        grid-template-columns: repeat(7, 1fr);
+        min-width: 100%;
+        max-width: 100%;
+    }
 
-            .day-number {
-                font-size: 0.65rem;
-                margin-bottom: 1px;
-            }
+    .calendar-day {
+        min-height: 55px;
+        padding: 1px;
+    }
 
-            .shift-tag {
-                font-size: 0.35rem;
-                padding: 0px 2px;
-                border-radius: 3px;
-            }
+    .day-number {
+        font-size: 0.65rem;
+        margin-bottom: 1px;
+    }
 
-            .add-shift-btn {
-                font-size: 0.45rem;
-                padding: 1px;
-            }
-        }
-        
+    .shift-tag {
+        font-size: 0.35rem;
+        padding: 0px 2px;
+        border-radius: 3px;
+    }
+
+    .add-shift-btn {
+        font-size: 0.45rem;
+        padding: 1px;
+    }
+}
         @media (hover: none) {
             .calendar-day:hover,
             .nav-btn:hover,
@@ -642,7 +723,22 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Password Protection Screen -->
+    <div class="password-screen" id="passwordScreen">
+        <div class="password-container">
+            <div class="password-header">
+                <h1>🏥 Nursing Shift Tracker</h1>
+                <p>Please enter the password to access the application</p>
+            </div>
+            <div class="password-form">
+                <input type="password" id="passwordInput" placeholder="Enter password" class="password-input">
+                <button onclick="checkPassword()" class="password-btn">Access Application</button>
+                <div id="passwordError" class="password-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainApp" style="display: none;">
         <div class="header">
             <h1>🏥 Nursing Shift Tracker</h1>
             <p>Track your nursing assignments and workload</p>
@@ -650,9 +746,6 @@
                 <div class="status-dot"></div>
                 <span>Connecting to database...</span>
             </div>
-            <button class="sign-out-btn" onclick="signOutUser()" id="signOutBtn">
-                Sign Out
-            </button>
         </div>
 
         <div class="controls">
@@ -763,86 +856,80 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
-            authDomain: "nursing-shift-tracker.firebaseapp.com",
-            databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
-            projectId: "nursing-shift-tracker",
-            storageBucket: "nursing-shift-tracker.firebasestorage.app",
-            messagingSenderId: "911404850414",
-            appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
-            measurementId: "G-QMM1YG26K5"
+const APPROVED_EMAILS = [
+    'yvonzh@gmail.com',           // YOUR EMAIL HERE
+
+    // Add more emails as needed
+];
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
+  authDomain: "nursing-shift-tracker.firebaseapp.com",
+  databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
+  projectId: "nursing-shift-tracker",
+  storageBucket: "nursing-shift-tracker.firebasestorage.app",
+  messagingSenderId: "911404850414",
+  appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
+  measurementId: "G-QMM1YG26K5"
+};
+
+        // Password protection
+        const APP_PASSWORD = '7997'; // Change this to your desired password
+
+        window.checkPassword = function() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordError = document.getElementById('passwordError');
+            const enteredPassword = passwordInput.value.trim();
+
+            if (enteredPassword === APP_PASSWORD) {
+                document.getElementById('passwordScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                // Initialize Firebase after successful password entry
+                initFirebase();
+            } else {
+                passwordError.textContent = 'Incorrect password. Please try again.';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
         };
 
-        // APPROVED EMAILS - Add your team's emails here
-        const APPROVED_EMAILS = [
-            'yvonzh@gmail.com'           // YOUR EMAIL HERE              
-            // Add more emails as needed
-        ];
+        // Allow Enter key to submit password
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+                passwordInput.focus();
+            }
+        });
 
-        let app, database, auth;
+        let app, database;
         let isFirebaseInitialized = false;
         let currentDate = new Date();
         let selectedDay = null;
         let selectedDateKey = null;
         let shiftData = {};
         let currentShiftId = null;
-        let currentUser = null;
 
         async function initFirebase() {
-            console.log('🚀 App version: v2.0 - Updated authentication');
             try {
                 app = initializeApp(firebaseConfig);
                 database = getDatabase(app);
-                auth = getAuth(app);
                 
-                updateConnectionStatus('loading', 'Connecting to database...');
+                updateConnectionStatus('connected', 'Connected to database');
+                isFirebaseInitialized = true;
                 
-                // Check for redirect result first (CRITICAL for redirect auth)
-                console.log('🔍 Checking for redirect result...');
-                try {
-                    const result = await getRedirectResult(auth);
-                    if (result) {
-                        console.log('📱 ✅ REDIRECT RESULT FOUND!');
-                        console.log('📱 Redirect sign-in successful:', result.user.email);
-                        console.log('📱 User:', result.user);
-                    } else {
-                        console.log('📱 No redirect result found');
-                    }
-                } catch (error) {
-                    console.log('📱 Redirect result error:', error.message);
-                }
-                
-                // Monitor authentication state with debugging
-                onAuthStateChanged(auth, (user) => {
-                    console.log('🔥 Auth state changed:', user ? user.email : 'No user');
-                    
-                    if (user) {
-                        console.log('👤 User email:', user.email);
-                        console.log('📋 Approved emails:', APPROVED_EMAILS);
-                        console.log('✅ Is approved:', APPROVED_EMAILS.includes(user.email));
-                        
-                        // Check if user email is approved
-                        if (APPROVED_EMAILS.includes(user.email)) {
-                            console.log('🎉 User approved, showing main app');
-                            currentUser = user;
-                            updateConnectionStatus('connected', `Welcome, ${user.displayName || user.email}!`);
-                            isFirebaseInitialized = true;
-                            setupUserShiftListener();
-                            showMainApp();
-                        } else {
-                            console.log('❌ User not approved, showing access denied');
-                            showAccessDeniedScreen(user);
-                        }
-                    } else {
-                        console.log('🚪 No user, showing login screen');
-                        showLoginScreen();
-                    }
-                });
+                setupRealtimeListener();
+                renderCalendar();
+                updateStats();
                 
             } catch (error) {
                 console.error('Firebase initialization error:', error);
@@ -852,16 +939,14 @@
 
         function updateConnectionStatus(status, message) {
             const statusElement = document.getElementById('connectionStatus');
-            if (statusElement) {
-                statusElement.className = `connection-status ${status}`;
-                statusElement.querySelector('span').textContent = message;
-            }
+            statusElement.className = `connection-status ${status}`;
+            statusElement.querySelector('span').textContent = message;
         }
 
-        function setupUserShiftListener() {
-            if (!currentUser) return;
+        function setupRealtimeListener() {
+            if (!isFirebaseInitialized) return;
             
-            const shiftsRef = ref(database, `users/${currentUser.uid}/nursing-shifts`);
+            const shiftsRef = ref(database, 'nursing-shifts');
             onValue(shiftsRef, (snapshot) => {
                 const data = snapshot.val();
                 shiftData = data || {};
@@ -869,148 +954,9 @@
                 updateStats();
             }, (error) => {
                 console.error('Database read error:', error);
-                updateConnectionStatus('disconnected', 'Error reading data: ' + error.message);
+                updateConnectionStatus('disconnected', 'Error reading from database: ' + error.message);
             });
         }
-
-        function showLoginScreen() {
-            console.log('🖥️ Showing login screen - WORKING VERSION');
-            
-            const container = document.querySelector('.container');
-            if (container) {
-                console.log('✏️ Setting up Google sign-in...');
-                
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 50px; background: white; border-radius: 20px; margin: 50px;">
-                        <h1>🏥 Nursing Shift Tracker</h1>
-                        <p style="margin: 20px 0;">Please sign in with your approved Google account</p>
-                        <button onclick="actualGoogleSignIn()" style="
-                            background: #4285f4; 
-                            color: white; 
-                            border: none; 
-                            padding: 15px 30px; 
-                            border-radius: 8px; 
-                            font-size: 16px; 
-                            margin: 20px; 
-                            cursor: pointer;
-                        ">
-                            Sign in with Google
-                        </button>
-                    </div>
-                `;
-                
-                console.log('✅ Google sign-in HTML ready');
-            }
-        }
-        
-        // Actual Google sign-in function
-        window.actualGoogleSignIn = async function() {
-            console.log('🔘 Google sign-in button clicked!');
-            console.log('🔑 Starting Google authentication...');
-            
-            try {
-                console.log('📤 Creating Google provider...');
-                const provider = new GoogleAuthProvider();
-                
-                console.log('📤 Calling signInWithRedirect...');
-                await signInWithRedirect(auth, provider);
-                
-                console.log('✅ Redirect should have started');
-                // Note: Page will redirect, so we won't see this message
-                
-            } catch (error) {
-                console.error('❌ Google sign-in error:', error);
-                alert('Sign-in failed: ' + error.message);
-            }
-        };
-
-        function showAccessDeniedScreen(user) {
-            console.log('❌ Showing access denied screen for:', user.email);
-            document.body.innerHTML = `
-                <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
-                    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
-                        <h1 style="color: #e53e3e;">🚫 Access Denied</h1>
-                        <p style="margin: 20px 0; color: #666;">
-                            Hi ${user.displayName || user.email}!<br><br>
-                            Your email address is not approved for this application.<br>
-                            Please contact the administrator for access.
-                        </p>
-                        <p style="font-size: 0.9em; color: #999; margin: 20px 0;">
-                            Signed in as: ${user.email}
-                        </p>
-                        <button onclick="signOutUser()" style="
-                            background: #e53e3e; 
-                            color: white; 
-                            border: none; 
-                            padding: 10px 20px; 
-                            border-radius: 8px; 
-                            cursor: pointer;
-                            font-size: 14px;
-                        ">
-                            Sign Out
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function showMainApp() {
-            console.log('🏠 showMainApp called');
-            
-            // Check if container exists (main app elements)
-            const container = document.querySelector('.container');
-            if (!container) {
-                console.log('⚠️ Container not found, restoring original HTML');
-                // Reload page to restore original HTML structure
-                window.location.reload();
-                return;
-            }
-            
-            console.log('✅ Container found, showing main app');
-            
-            // Show the sign out button
-            const signOutBtn = document.getElementById('signOutBtn');
-            console.log('🔘 Sign out button found:', !!signOutBtn);
-            if (signOutBtn) {
-                signOutBtn.style.display = 'block';
-            }
-            
-            renderCalendar();
-            updateStats();
-        }
-
-        // Authentication functions
-        window.signInWithGoogle = async function() {
-            console.log('🔑 Attempting Google sign-in...');
-            console.log('🔄 Using redirect sign-in (COOP policy)');
-            
-            try {
-                const provider = new GoogleAuthProvider();
-                console.log('📤 Starting redirect...');
-                await signInWithRedirect(auth, provider);
-                console.log('✅ Redirect initiated');
-                // Note: redirect will cause page reload, so we won't reach this line
-            } catch (error) {
-                console.error('❌ Sign-in error:', error);
-                alert('Sign-in failed: ' + error.message);
-            }
-        };
-
-        // Test function availability
-        window.addEventListener('load', function() {
-            console.log('🔧 Testing function availability...');
-            console.log('signInWithGoogle function exists:', typeof window.signInWithGoogle === 'function');
-        });
-
-        window.signOutUser = async function() {
-            console.log('👋 Signing out...');
-            try {
-                await signOut(auth);
-                console.log('✅ Sign-out successful');
-            } catch (error) {
-                console.error('❌ Sign-out error:', error);
-            }
-        };
 
         window.changeMonth = function(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
@@ -1024,8 +970,6 @@
         function renderCalendar() {
             const calendar = document.getElementById('calendar');
             const monthElement = document.getElementById('currentMonth');
-            
-            if (!calendar || !monthElement) return;
             
             monthElement.textContent = currentDate.toLocaleDateString('en-US', {
                 month: 'long',
@@ -1150,11 +1094,6 @@
         };
 
         window.addShift = async function() {
-            if (!currentUser) {
-                alert('Please sign in first');
-                return;
-            }
-
             const unit = document.getElementById('unit').value;
             const assignment = document.getElementById('assignment').value;
             const isolation = document.getElementById('isolation').value;
@@ -1182,8 +1121,7 @@
             };
 
             try {
-                // Save to user-specific path
-                const shiftRef = ref(database, `users/${currentUser.uid}/nursing-shifts/${selectedDateKey}`);
+                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
                 await set(shiftRef, shiftRecord);
                 closeModal();
             } catch (error) {
@@ -1245,7 +1183,7 @@
             if (!confirm('Are you sure you want to delete this shift?')) return;
             
             try {
-                const shiftRef = ref(database, `users/${currentUser.uid}/nursing-shifts/${selectedDateKey}`);
+                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
                 await remove(shiftRef);
                 closeViewModal();
             } catch (error) {
@@ -1257,11 +1195,8 @@
         function updateStats() {
             const statsGrid = document.getElementById('statsGrid');
             const currentYear = new Date().getFullYear();
-            const currentYearElement = document.getElementById('currentYear');
+            document.getElementById('currentYear').textContent = currentYear;
             
-            if (!statsGrid || !currentYearElement) return;
-            
-            currentYearElement.textContent = currentYear;
             statsGrid.innerHTML = '';
 
             let totalShifts = 0;
@@ -1365,7 +1300,7 @@
                 ]);
             });
 
-            // Calculate statistics for CSV
+            // Calculate statistics
             let totalShifts = 0;
             let doubleAssignments = 0;
             let singleAssignments = 0;
@@ -1443,9 +1378,80 @@
         };
 
         window.exportToJSON = function() {
+            const currentYear = new Date().getFullYear();
+            
+            // Calculate statistics
+            let totalShifts = 0;
+            let doubleAssignments = 0;
+            let singleAssignments = 0;
+            let noIsolation = 0;
+            let oneIsolation = 0;
+            let twoIsolations = 0;
+            let pacuShifts = 0;
+            let floorShifts = 0;
+            let totalHours = 0;
+
+            Object.keys(shiftData).forEach(dateKey => {
+                const [year] = dateKey.split('-').map(Number);
+                if (year === currentYear) {
+                    const shift = shiftData[dateKey];
+                    if (shift) {
+                        totalShifts++;
+                        totalHours += 11.25;
+                        
+                        if (shift.assignment === 'Double') {
+                            doubleAssignments++;
+                        } else if (shift.assignment === 'Single') {
+                            singleAssignments++;
+                        }
+                        
+                        if (shift.isolation === 'None') {
+                            noIsolation++;
+                        } else if (shift.isolation === '1') {
+                            oneIsolation++;
+                        } else if (shift.isolation === '2') {
+                            twoIsolations++;
+                        }
+                        
+                        if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
+                            pacuShifts++;
+                        }
+                        
+                        if (shift.unit === 'Floor') {
+                            floorShifts++;
+                        }
+                    }
+                }
+            });
+
+            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
+            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
+            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
+            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
+            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
+            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
+            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+
             const exportData = {
                 exportDate: new Date().toISOString(),
-                year: new Date().getFullYear(),
+                year: currentYear,
+                statistics: {
+                    totalShifts: totalShifts,
+                    totalHours: totalHours,
+                    assignments: {
+                        double: { count: doubleAssignments, percentage: doubleAssignmentPercent },
+                        single: { count: singleAssignments, percentage: singleAssignmentPercent }
+                    },
+                    isolation: {
+                        none: { count: noIsolation, percentage: noIsolationPercent },
+                        one: { count: oneIsolation, percentage: oneIsolationPercent },
+                        two: { count: twoIsolations, percentage: twoIsolationPercent }
+                    },
+                    units: {
+                        pacu: { count: pacuShifts, percentage: pacuPercent },
+                        floor: { count: floorShifts, percentage: floorPercent }
+                    }
+                },
                 shiftData: shiftData
             };
 
@@ -1454,7 +1460,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `nursing-shifts-${new Date().toISOString().split('T')[0]}.json`;
+            a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             window.URL.revokeObjectURL(url);
         };
@@ -1472,8 +1478,8 @@
             }
         });
 
-        // Initialize Firebase when the page loads
-        initFirebase();
+        // Firebase will be initialized after password verification
+        // initFirebase() is now called from checkPassword() function
 
     </script>
 </body>
