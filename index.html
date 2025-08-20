@@ -33,6 +33,7 @@
             margin-bottom: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -78,6 +79,20 @@
             height: 8px;
             border-radius: 50%;
             background: currentColor;
+        }
+
+        .sign-out-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: none;
         }
 
         .controls {
@@ -177,12 +192,12 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, minmax(0, 1fr));
-	    max-width: 100%；
-	    word-wrap: break-word；
-	    white-space: nowrap；
-	        overflow: hidden；
-	       text-overflow: ellipsis；
- 	    flex-shrink: 0
+            max-width: 100%;
+            word-wrap: break-word;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
             gap: 3px;
             margin-top: 20px;
         }
@@ -481,40 +496,38 @@
                 padding: 8px;
             }
 
-    .controls {
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-    }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
 
+            .month-nav {
+                order: 1;
+                width: 100%;
+                justify-content: space-between;
+            }
 
-    .month-nav {
-        order: 1;
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .export-controls {
-        order: 2;
-        margin-left: 0;
-        justify-content: space-between;
-        width: 100%;
-    }
-
+            .export-controls {
+                order: 2;
+                margin-left: 0;
+                justify-content: space-between;
+                width: 100%;
+            }
 
             .calendar {
                 padding: 12px;
-		overflow-x: auto;
+                overflow-x: auto;
             }
 
             .calendar-day {
                 min-height: 80px;
                 padding: 4px;
             }
-	    
-	    .calendar-grid {
+            
+            .calendar-grid {
                 grid-template-columns: repeat(7, minmax(38px, 1fr));
-		gap: 1px;
+                gap: 1px;
             }
 
             .day-number {
@@ -545,79 +558,78 @@
             }
         }
 
-
         @media (max-width: 320px) {
+            .container {
+                padding: 5px;
+            }
 
-    .container {
-        padding: 5px;
-    }
+            .calendar {
+                padding: 8px;
+            }
 
-    .calendar {
-        padding: 8px;
-    }
+            .calendar-grid {
+                grid-template-columns: repeat(7, minmax(35px, 1fr));
+                gap: 1px;
+                min-width: 260px;
+            }
 
-    .calendar-grid {
-        grid-template-columns: repeat(7, minmax(35px, 1fr));
-        gap: 1px;
-        min-width: 260px;
-    }
+            .calendar-day {
+                min-height: 60px;
+                padding: 2px;
+            }
 
-    .calendar-day {
-        min-height: 60px;
-        padding: 2px;
-    }
+            .day-number {
+                font-size: 0.7rem;
+                margin-bottom: 2px;
+            }
 
-    .day-number {
-        font-size: 0.7rem;
-        margin-bottom: 2px;
-    }
+            .shift-tag {
+                font-size: 0.4rem;
+                padding: 1px 2px;
+                border-radius: 4px;
+            }
 
-    .shift-tag {
-        font-size: 0.4rem;
-        padding: 1px 2px;
-        border-radius: 4px;
-    }
+            .add-shift-btn {
+                font-size: 0.5rem;
+                padding: 1px;
+                border-radius: 4px;
+            }
 
-    .add-shift-btn {
-        font-size: 0.5rem;
-        padding: 1px;
-        border-radius: 4px;
-    }
+            .shift-info {
+                gap: 1px;
+            }
+        }
 
-    .shift-info {
-        gap: 1px;
-    }
-}
+        /* Ultra narrow (Galaxy Z Fold folded mode) */
+        @media (max-width: 280px) {
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                min-width: 100%;
+                max-width: 100%;
+            }
 
-/* Ultra narrow (Galaxy Z Fold folded mode) */
-@media (max-width: 280px) {
-    .calendar-grid {
-        grid-template-columns: repeat(7, 1fr);
-        min-width: 100%;
-        max-width: 100%;
-    }
+            .calendar-day {
+                min-height: 55px;
+                padding: 1px;
+            }
 
-    .calendar-day {
-        min-height: 55px;
-        padding: 1px;
-    }
+            .day-number {
+                font-size: 0.65rem;
+                margin-bottom: 1px;
+            }
 
-    .day-number {
-        font-size: 0.65rem;
-        margin-bottom: 1px;
-    }
+            .shift-tag {
+                font-size: 0.35rem;
+                padding: 0px 2px;
+                border-radius: 3px;
+            }
 
-    .shift-tag {
-        font-size: 0.35rem;
-        padding: 0px 2px;
-        border-radius: 3px;
-    }
-
-    .add-shift-btn {
-        font-size: 0.45rem;
-        padding: 1px;
-    }
-}
+            .add-shift-btn {
+                font-size: 0.45rem;
+                padding: 1px;
+            }
+        }
+        
         @media (hover: none) {
             .calendar-day:hover,
             .nav-btn:hover,
@@ -638,6 +650,9 @@
                 <div class="status-dot"></div>
                 <span>Connecting to database...</span>
             </div>
+            <button class="sign-out-btn" onclick="signOutUser()" id="signOutBtn">
+                Sign Out
+            </button>
         </div>
 
         <div class="controls">
@@ -748,47 +763,64 @@
     </div>
 
     <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
-const APPROVED_EMAILS = [
-    'yvonzh@gmail.com',           // YOUR EMAIL HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
+            authDomain: "nursing-shift-tracker.firebaseapp.com",
+            databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
+            projectId: "nursing-shift-tracker",
+            storageBucket: "nursing-shift-tracker.firebasestorage.app",
+            messagingSenderId: "911404850414",
+            appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
+            measurementId: "G-QMM1YG26K5"
+        };
 
-    // Add more emails as needed
-];
+        // APPROVED EMAILS - Add your team's emails here
+        const APPROVED_EMAILS = [
+            'yvonzh@gmail.com',           // YOUR EMAIL HERE
+              
+            // Add more emails as needed
+        ];
 
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
-  authDomain: "nursing-shift-tracker.firebaseapp.com",
-  databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
-  projectId: "nursing-shift-tracker",
-  storageBucket: "nursing-shift-tracker.firebasestorage.app",
-  messagingSenderId: "911404850414",
-  appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
-  measurementId: "G-QMM1YG26K5"
-};
-
-        let app, database;
+        let app, database, auth;
         let isFirebaseInitialized = false;
         let currentDate = new Date();
         let selectedDay = null;
         let selectedDateKey = null;
         let shiftData = {};
         let currentShiftId = null;
+        let currentUser = null;
 
         async function initFirebase() {
             try {
                 app = initializeApp(firebaseConfig);
                 database = getDatabase(app);
+                auth = getAuth(app);
                 
-                updateConnectionStatus('connected', 'Connected to database');
-                isFirebaseInitialized = true;
+                updateConnectionStatus('loading', 'Connecting to database...');
                 
-                setupRealtimeListener();
-                renderCalendar();
-                updateStats();
+                // Monitor authentication state
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // Check if user email is approved
+                        if (APPROVED_EMAILS.includes(user.email)) {
+                            currentUser = user;
+                            updateConnectionStatus('connected', `Welcome, ${user.displayName || user.email}!`);
+                            isFirebaseInitialized = true;
+                            setupUserShiftListener();
+                            showMainApp();
+                        } else {
+                            // User not approved
+                            showAccessDeniedScreen(user);
+                        }
+                    } else {
+                        // User not signed in
+                        showLoginScreen();
+                    }
+                });
                 
             } catch (error) {
                 console.error('Firebase initialization error:', error);
@@ -798,14 +830,16 @@ const firebaseConfig = {
 
         function updateConnectionStatus(status, message) {
             const statusElement = document.getElementById('connectionStatus');
-            statusElement.className = `connection-status ${status}`;
-            statusElement.querySelector('span').textContent = message;
+            if (statusElement) {
+                statusElement.className = `connection-status ${status}`;
+                statusElement.querySelector('span').textContent = message;
+            }
         }
 
-        function setupRealtimeListener() {
-            if (!isFirebaseInitialized) return;
+        function setupUserShiftListener() {
+            if (!currentUser) return;
             
-            const shiftsRef = ref(database, 'nursing-shifts');
+            const shiftsRef = ref(database, `users/${currentUser.uid}/nursing-shifts`);
             onValue(shiftsRef, (snapshot) => {
                 const data = snapshot.val();
                 shiftData = data || {};
@@ -813,9 +847,93 @@ const firebaseConfig = {
                 updateStats();
             }, (error) => {
                 console.error('Database read error:', error);
-                updateConnectionStatus('disconnected', 'Error reading from database: ' + error.message);
+                updateConnectionStatus('disconnected', 'Error reading data: ' + error.message);
             });
         }
+
+        function showLoginScreen() {
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
+                    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
+                        <h1 style="margin-bottom: 10px;">🏥 Nursing Shift Tracker</h1>
+                        <p style="margin: 20px 0; color: #666;">Please sign in with your approved Google account</p>
+                        <button onclick="signInWithGoogle()" style="
+                            background: #4285f4; 
+                            color: white; 
+                            border: none; 
+                            padding: 12px 24px; 
+                            border-radius: 8px; 
+                            font-size: 16px; 
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            margin: 0 auto;
+                        ">
+                            Sign in with Google
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showAccessDeniedScreen(user) {
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);">
+                    <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.2); max-width: 400px;">
+                        <h1 style="color: #e53e3e;">🚫 Access Denied</h1>
+                        <p style="margin: 20px 0; color: #666;">
+                            Hi ${user.displayName || user.email}!<br><br>
+                            Your email address is not approved for this application.<br>
+                            Please contact the administrator for access.
+                        </p>
+                        <p style="font-size: 0.9em; color: #999; margin: 20px 0;">
+                            Signed in as: ${user.email}
+                        </p>
+                        <button onclick="signOutUser()" style="
+                            background: #e53e3e; 
+                            color: white; 
+                            border: none; 
+                            padding: 10px 20px; 
+                            border-radius: 8px; 
+                            cursor: pointer;
+                            font-size: 14px;
+                        ">
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showMainApp() {
+            // Show the sign out button
+            const signOutBtn = document.getElementById('signOutBtn');
+            if (signOutBtn) {
+                signOutBtn.style.display = 'block';
+            }
+            renderCalendar();
+            updateStats();
+        }
+
+        // Authentication functions
+        window.signInWithGoogle = async function() {
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                console.error('Sign-in error:', error);
+                alert('Sign-in failed: ' + error.message);
+            }
+        };
+
+        window.signOutUser = async function() {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Sign-out error:', error);
+            }
+        };
 
         window.changeMonth = function(direction) {
             currentDate.setMonth(currentDate.getMonth() + direction);
@@ -829,6 +947,8 @@ const firebaseConfig = {
         function renderCalendar() {
             const calendar = document.getElementById('calendar');
             const monthElement = document.getElementById('currentMonth');
+            
+            if (!calendar || !monthElement) return;
             
             monthElement.textContent = currentDate.toLocaleDateString('en-US', {
                 month: 'long',
@@ -953,6 +1073,11 @@ const firebaseConfig = {
         };
 
         window.addShift = async function() {
+            if (!currentUser) {
+                alert('Please sign in first');
+                return;
+            }
+
             const unit = document.getElementById('unit').value;
             const assignment = document.getElementById('assignment').value;
             const isolation = document.getElementById('isolation').value;
@@ -980,7 +1105,8 @@ const firebaseConfig = {
             };
 
             try {
-                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
+                // Save to user-specific path
+                const shiftRef = ref(database, `users/${currentUser.uid}/nursing-shifts/${selectedDateKey}`);
                 await set(shiftRef, shiftRecord);
                 closeModal();
             } catch (error) {
@@ -1042,7 +1168,7 @@ const firebaseConfig = {
             if (!confirm('Are you sure you want to delete this shift?')) return;
             
             try {
-                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
+                const shiftRef = ref(database, `users/${currentUser.uid}/nursing-shifts/${selectedDateKey}`);
                 await remove(shiftRef);
                 closeViewModal();
             } catch (error) {
@@ -1054,8 +1180,11 @@ const firebaseConfig = {
         function updateStats() {
             const statsGrid = document.getElementById('statsGrid');
             const currentYear = new Date().getFullYear();
-            document.getElementById('currentYear').textContent = currentYear;
+            const currentYearElement = document.getElementById('currentYear');
             
+            if (!statsGrid || !currentYearElement) return;
+            
+            currentYearElement.textContent = currentYear;
             statsGrid.innerHTML = '';
 
             let totalShifts = 0;
@@ -1135,107 +1264,123 @@ const firebaseConfig = {
             });
         }
 
-window.exportToCSV = function() {
-    const currentYear = new Date().getFullYear();
-    const csvData = [];
-    
-    // Add header for shift data
-    csvData.push(['SHIFT DATA']);
-    csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
+        window.exportToCSV = function() {
+            const currentYear = new Date().getFullYear();
+            const csvData = [];
+            
+            // Add header for shift data
+            csvData.push(['SHIFT DATA']);
+            csvData.push(['Date', 'Unit', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
 
-    // Add shift data
-    Object.keys(shiftData).forEach(dateKey => {
-        const shift = shiftData[dateKey];
-        const date = new Date(dateKey).toLocaleDateString();
-        
-        csvData.push([
-            date,
-            shift.unit,
-            shift.assignment,
-            shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
-            shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
-            shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
-            '11.25'
-        ]);
-    });
-
-    // Calculate statistics (MOVE THIS INSIDE THE FUNCTION)
-    let totalShifts = 0;
-    let doubleAssignments = 0;
-    let singleAssignments = 0;
-    let noIsolation = 0;
-    let oneIsolation = 0;
-    let twoIsolations = 0;
-    let pacuShifts = 0;
-    let floorShifts = 0;
-    let totalHours = 0;
-
-    Object.keys(shiftData).forEach(dateKey => {
-        const [year] = dateKey.split('-').map(Number);
-        if (year === currentYear) {
-            const shift = shiftData[dateKey];
-            if (shift) {
-                totalShifts++;
-                totalHours += 11.25;
+            // Add shift data
+            Object.keys(shiftData).forEach(dateKey => {
+                const shift = shiftData[dateKey];
+                const date = new Date(dateKey).toLocaleDateString();
                 
-                if (shift.assignment === 'Double') {
-                    doubleAssignments++;
-                } else if (shift.assignment === 'Single') {
-                    singleAssignments++;
-                }
-                
-                if (shift.isolation === 'None') {
-                    noIsolation++;
-                } else if (shift.isolation === '1') {
-                    oneIsolation++;
-                } else if (shift.isolation === '2') {
-                    twoIsolations++;
-                }
-                
-                if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
-                    pacuShifts++;
-                }
-                
-                if (shift.unit === 'Floor') {
-                    floorShifts++;
-                }
-            }
-        }
-    });
+                csvData.push([
+                    date,
+                    shift.unit,
+                    shift.assignment,
+                    shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
+                    shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
+                    shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
+                    '11.25'
+                ]);
+            });
 
-    const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
-    const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
-    const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
-    const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
-    const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
-    const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
-    const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+            // Calculate statistics for CSV
+            let totalShifts = 0;
+            let doubleAssignments = 0;
+            let singleAssignments = 0;
+            let noIsolation = 0;
+            let oneIsolation = 0;
+            let twoIsolations = 0;
+            let pacuShifts = 0;
+            let floorShifts = 0;
+            let totalHours = 0;
 
-    // Add statistics to CSV
-    csvData.push(['']);
-    csvData.push(['']);
-    csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
-    csvData.push(['Category', 'Count', 'Percentage']);
-    csvData.push(['Total Shifts', totalShifts, '']);
-    csvData.push(['Total Hours', totalHours, '']);
-    csvData.push(['Double Assignments', doubleAssignments, doubleAssignmentPercent + '%']);
-    csvData.push(['Single Assignments', singleAssignments, singleAssignmentPercent + '%']);
-    csvData.push(['No Isolation', noIsolation, noIsolationPercent + '%']);
-    csvData.push(['1 Isolation', oneIsolation, oneIsolationPercent + '%']);
-    csvData.push(['2 Isolations', twoIsolations, twoIsolationPercent + '%']);
-    csvData.push(['PACU Shifts', pacuShifts, pacuPercent + '%']);
-    csvData.push(['Floor Shifts', floorShifts, floorPercent + '%']);
+            Object.keys(shiftData).forEach(dateKey => {
+                const [year] = dateKey.split('-').map(Number);
+                if (year === currentYear) {
+                    const shift = shiftData[dateKey];
+                    if (shift) {
+                        totalShifts++;
+                        totalHours += 11.25;
+                        
+                        if (shift.assignment === 'Double') {
+                            doubleAssignments++;
+                        } else if (shift.assignment === 'Single') {
+                            singleAssignments++;
+                        }
+                        
+                        if (shift.isolation === 'None') {
+                            noIsolation++;
+                        } else if (shift.isolation === '1') {
+                            oneIsolation++;
+                        } else if (shift.isolation === '2') {
+                            twoIsolations++;
+                        }
+                        
+                        if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
+                            pacuShifts++;
+                        }
+                        
+                        if (shift.unit === 'Floor') {
+                            floorShifts++;
+                        }
+                    }
+                }
+            });
 
-    const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-};
+            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
+            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
+            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
+            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
+            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
+            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
+            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
 
+            // Add statistics to CSV
+            csvData.push(['']);
+            csvData.push(['']);
+            csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
+            csvData.push(['Category', 'Count', 'Percentage']);
+            csvData.push(['Total Shifts', totalShifts, '']);
+            csvData.push(['Total Hours', totalHours, '']);
+            csvData.push(['Double Assignments', doubleAssignments, doubleAssignmentPercent + '%']);
+            csvData.push(['Single Assignments', singleAssignments, singleAssignmentPercent + '%']);
+            csvData.push(['No Isolation', noIsolation, noIsolationPercent + '%']);
+            csvData.push(['1 Isolation', oneIsolation, oneIsolationPercent + '%']);
+            csvData.push(['2 Isolations', twoIsolations, twoIsolationPercent + '%']);
+            csvData.push(['PACU Shifts', pacuShifts, pacuPercent + '%']);
+            csvData.push(['Floor Shifts', floorShifts, floorPercent + '%']);
+
+            const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nursing-shifts-with-stats-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+
+        window.exportToJSON = function() {
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                year: new Date().getFullYear(),
+                shiftData: shiftData
+            };
+
+            const jsonContent = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nursing-shifts-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
 
         // Event listeners
         document.getElementById('shiftModal').addEventListener('click', function(e) {
@@ -1252,43 +1397,6 @@ window.exportToCSV = function() {
 
         // Initialize Firebase when the page loads
         initFirebase();
-
-// Added after the shift data loop:
-csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
-csvData.push(['Category', 'Count', 'Percentage']);
-csvData.push(['Total Shifts', totalShifts, '']);
-csvData.push(['Total Hours', totalHours, '']);
-csvData.push(['Double Assignments', doubleAssignments, doubleAssignmentPercent + '%']);
-csvData.push(['Single Assignments', singleAssignments, singleAssignmentPercent + '%']);
-csvData.push(['No Isolation', noIsolation, noIsolationPercent + '%']);
-csvData.push(['1 Isolation', oneIsolation, oneIsolationPercent + '%']);
-csvData.push(['2 Isolations', twoIsolations, twoIsolationPercent + '%']);
-csvData.push(['PACU Shifts', pacuShifts, pacuPercent + '%']);
-csvData.push(['Floor Shifts', floorShifts, floorPercent + '%']);
-
-const exportData = {
-    exportDate: new Date().toISOString(),
-    year: currentYear,  // NEW
-    statistics: {       // NEW ENTIRE SECTION
-        totalShifts: totalShifts,
-        totalHours: totalHours,
-        assignments: {
-            double: { count: doubleAssignments, percentage: doubleAssignmentPercent },
-            single: { count: singleAssignments, percentage: singleAssignmentPercent }
-        },
-        isolation: {
-            none: { count: noIsolation, percentage: noIsolationPercent },
-            one: { count: oneIsolation, percentage: oneIsolationPercent },
-            two: { count: twoIsolations, percentage: twoIsolationPercent }
-        },
-        units: {
-            pacu: { count: pacuShifts, percentage: pacuPercent },
-            floor: { count: floorShifts, percentage: floorPercent }
-        }
-    },
-    shiftData: shiftData
-};
-
 
     </script>
 </body>
