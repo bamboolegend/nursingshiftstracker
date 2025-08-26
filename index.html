@@ -2042,7 +2042,7 @@
             const rvHours = rvCount * 11.25;
             const regularVacationHours = regularVacationCount * 7.5;
             const bank = Number(notesData.vacationBank || 0);
-            const totalVacationUsed = rvHours + regularVacationHours + customVacationHours;
+            const totalVacationUsed = rvHours + customVacationHours;
             const remaining = bank - totalVacationUsed;
 
             // Update all the display elements
@@ -2554,7 +2554,7 @@
                     });
                     const notes = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
                     const bank = Number(notes && notes.vacationBank ? notes.vacationBank : 0);
-                    const totalUsed = (rvCount * 11.25) + customVacationHours + regularVacationHours;
+                    const totalUsed = (rvCount * 11.25) + customVacationHours;
                     return bank - totalUsed;
                 } catch(e) { return 0; }
             })();
