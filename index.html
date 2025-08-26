@@ -599,6 +599,33 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
 
+        /* Other Hours Fields */
+        .other-hours-section {
+            display: none;
+            background: rgba(153, 126, 234, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px solid #9f7aea;
+        }
+
+        .other-hours-section.show {
+            display: block;
+        }
+
+        .hours-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .hours-info {
+            font-size: 0.85rem;
+            color: #6b46c1;
+            margin-top: 5px;
+        }
+
         /* Pay Calculation Styles */
         .pay-table {
             width: 100%;
@@ -768,6 +795,11 @@
 
             .stat-label {
                 font-size: 0.7rem;
+            }
+
+            .hours-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
         }
 
@@ -945,6 +977,26 @@
                 </select>
             </div>
 
+            <!-- Other Hours Section -->
+            <div id="otherHoursSection" class="other-hours-section">
+                <h4 style="margin-bottom: 10px; color: #6b46c1;">⏰ Custom Hours for "Other" Shift</h4>
+                <div class="hours-info">
+                    Enter optional hours for pay calculation and vacation tracking. Leave blank to use defaults.
+                </div>
+                <div class="hours-row">
+                    <div class="form-group">
+                        <label for="shiftHours">Shift Hours (optional)</label>
+                        <input type="number" id="shiftHours" step="0.25" min="0" placeholder="e.g., 8.0">
+                        <div class="hours-info">Hours to be paid at your base rate</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="vacationHours">Vacation Hours (optional)</label>
+                        <input type="number" id="vacationHours" step="0.25" min="0" placeholder="e.g., 4.0">
+                        <div class="hours-info">Hours deducted from vacation bank</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="unit">Unit (required for Day/Night; optional otherwise)</label>
                 <select id="unit" required>
@@ -1109,7 +1161,7 @@
                 <textarea id="payNotes" rows="3" placeholder="e.g. Base $35.50, Evening $2.50, Night $4.00, Weekend $3.00"></textarea>
             </div>
             <div class="form-group">
-                <label>OT / Mentor Records</label>
+                <label>OT / Mentor / Other (specify) Records<br>*Worked holidays need to be manually recorded*</label>
                 <table class="pay-table" id="otMentorTable">
                     <thead>
                         <tr><th>Date</th><th>Type</th><th>Hours</th><th></th></tr>
@@ -1124,6 +1176,16 @@
                 <div style="margin-top:6px;">
                     <strong>Requested Vacations this year:</strong>
                     <span id="rvCount">0</span> (× 11.25h = <span id="rvHours">0.00</span> h)
+                </div>
+                <div style="margin-top:6px;">
+                    <strong>Regular Vacations this year:</strong>
+                    <span id="regularVacationCount">0</span> (× 7.5h = <span id="regularVacationHours">0.00</span> h)
+                </div>
+                <div style="margin-top:6px;">
+                    <strong>Custom vacation hours used (from Other shifts):</strong> <span id="customVacationHours">0.00</span> h
+                </div>
+                <div style="margin-top:6px;">
+                    <strong>Total vacation used:</strong> <span id="totalVacationUsed">0.00</span> h
                 </div>
                 <div style="margin-top:6px;">
                     <strong>Remaining bank:</strong> <span id="vacationRemaining">0.00</span> h
@@ -1273,7 +1335,7 @@
             try {
                 updateConnectionStatus('connected', 'Connected to database');
                 isFirebaseInitialized = true;
-                attachSettingsNotesRealtime(); // ← NEW: keep settings/notes in sync
+                attachSettingsNotesRealtime();
                 setupRealtimeListener();
                 renderCalendar();
                 updateStats();
@@ -1286,45 +1348,41 @@
             }
         }
 
+        function attachSettingsNotesRealtime() {
+            if (!currentUser) return;
 
+            try {
+                // SETTINGS
+                const settingsRef = getSecureRef('settings');
+                onValue(settingsRef, (snap) => {
+                    const cloud = snap.val();
+                    if (!cloud) return;
+                    // Cache for offline + reflect UI if visible
+                    window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
+                    paySettings = cloud;
+                    ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
+                        .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? ''); });
+                });
 
-function attachSettingsNotesRealtime() {
-  if (!currentUser) return;
+                // NOTES
+                const notesRef = getSecureRef('notes');
+                onValue(notesRef, (snap) => {
+                    const cloud = snap.val();
+                    if (!cloud) return;
+                    notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...cloud };
+                    window.localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+                    const payNotesEl = document.getElementById('payNotes');
+                    const bankEl = document.getElementById('vacationBank');
+                    if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+                    if (bankEl) bankEl.value = notesData.vacationBank || 0;
+                    renderOtMentorTable();
+                    try { updateRVAndBankFigures(); } catch(e){}
+                });
 
-  try {
-    // SETTINGS
-    const settingsRef = getSecureRef('settings');
-    onValue(settingsRef, (snap) => {
-      const cloud = snap.val();
-      if (!cloud) return;
-      // Cache for offline + reflect UI if visible
-      window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
-      paySettings = cloud;
-      ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
-        .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? ''); });
-    });
-
-    // NOTES
-    const notesRef = getSecureRef('notes');
-    onValue(notesRef, (snap) => {
-      const cloud = snap.val();
-      if (!cloud) return;
-      notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...cloud };
-      window.localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-      const payNotesEl = document.getElementById('payNotes');
-      const bankEl = document.getElementById('vacationBank');
-      if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
-      if (bankEl) bankEl.value = notesData.vacationBank || 0;
-      renderOtMentorTable();
-      try { updateRVAndBankFigures(); } catch(e){}
-    });
-
-  } catch (e) {
-    console.error('Realtime attach failed:', e);
-  }
-}
-
-
+            } catch (e) {
+                console.error('Realtime attach failed:', e);
+            }
+        }
 
         // Secure database operations helper
         function getSecureRef(path) {
@@ -1340,8 +1398,24 @@ function attachSettingsNotesRealtime() {
             const s = sEl ? sEl.value : '';
             const requires = window.isWorkShift(s);
             const isNonWork = (s === 'V' || s === 'RV' || s === 'S');
+            const isOther = (s === 'O');
             const unitEl = document.getElementById('unit');
             const unitLabel = unitEl && unitEl.previousElementSibling && unitEl.previousElementSibling.tagName.toLowerCase()==='label' ? unitEl.previousElementSibling : null;
+
+            // Show/hide Other Hours section
+            const otherHoursSection = document.getElementById('otherHoursSection');
+            if (otherHoursSection) {
+                if (isOther) {
+                    otherHoursSection.classList.add('show');
+                } else {
+                    otherHoursSection.classList.remove('show');
+                    // Clear the values when hiding
+                    const shiftHours = document.getElementById('shiftHours');
+                    const vacationHours = document.getElementById('vacationHours');
+                    if (shiftHours) shiftHours.value = '';
+                    if (vacationHours) vacationHours.value = '';
+                }
+            }
 
             if (unitEl) {
                 unitEl.required = requires;
@@ -1362,8 +1436,6 @@ function attachSettingsNotesRealtime() {
             checkboxes.forEach(cb => cb.disabled = disable);
         };
 
-        // SECURE DATABASE FUNCTIONS
-
         // SECURE ADD SHIFT
         window.addShift = async function() {
             if (!currentUser) {
@@ -1382,6 +1454,10 @@ function attachSettingsNotesRealtime() {
 
             const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
 
+            // Get custom hours for "Other" shift type
+            const shiftHours = stVal === 'O' ? (parseFloat(document.getElementById('shiftHours').value) || null) : null;
+            const vacationHours = stVal === 'O' ? (parseFloat(document.getElementById('vacationHours').value) || null) : null;
+
             const shiftRecord = {
                 id: Date.now().toString(),
                 unit,
@@ -1391,7 +1467,10 @@ function attachSettingsNotesRealtime() {
                 treatments,
                 comments: document.getElementById('comments').value || '',
                 date: selectedDateKey,
-                createdAt: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                // Add custom hours for "Other" shifts
+                shiftHours: shiftHours,
+                vacationHours: vacationHours
             };
 
             try {
@@ -1423,6 +1502,10 @@ function attachSettingsNotesRealtime() {
 
             const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
 
+            // Get custom hours for "Other" shift type
+            const shiftHours = stVal === 'O' ? (parseFloat(document.getElementById('shiftHours').value) || null) : null;
+            const vacationHours = stVal === 'O' ? (parseFloat(document.getElementById('vacationHours').value) || null) : null;
+
             const shiftRecord = {
                 id: currentShiftId,
                 unit,
@@ -1432,7 +1515,10 @@ function attachSettingsNotesRealtime() {
                 treatments,
                 comments: document.getElementById('comments').value || '',
                 date: selectedDateKey,
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date().toISOString(),
+                // Add custom hours for "Other" shifts
+                shiftHours: shiftHours,
+                vacationHours: vacationHours
             };
 
             try {
@@ -1558,6 +1644,35 @@ function attachSettingsNotesRealtime() {
             return classMap[shiftType] || '';
         }
 
+        // Calculate actual hours for a shift (including custom hours for "Other")
+        function getShiftHours(shift) {
+            if (shift.shiftType === 'O') {
+                // For "Other" shifts, total paid hours = shift hours + vacation hours
+                const shiftHours = (typeof shift.shiftHours === 'number') ? shift.shiftHours : 0;
+                const vacationHours = (typeof shift.vacationHours === 'number') ? shift.vacationHours : 0;
+                return shiftHours + vacationHours;
+            } else if (shift.shiftType === 'V') {
+                return 7.5;
+            } else if (shift.shiftType === 'RV') {
+                return 11.25;
+            } else {
+                return 11.25; // Default for D, N, S
+            }
+        }
+
+        // Calculate vacation hours used for a shift
+        function getVacationHoursUsed(shift) {
+            if (shift.shiftType === 'O' && typeof shift.vacationHours === 'number') {
+                return shift.vacationHours; // Custom vacation hours for Other
+            } else if (shift.shiftType === 'V') {
+                return 7.5;
+            } else if (shift.shiftType === 'RV') {
+                return 11.25;
+            } else {
+                return 0; // No vacation hours used for regular shifts
+            }
+        }
+
         function renderCalendar() {
             const calendar = document.getElementById('calendar');
             const monthElement = document.getElementById('currentMonth');
@@ -1616,7 +1731,24 @@ function attachSettingsNotesRealtime() {
                     if (dayData.shiftType) {
                         const shiftTypeTag = document.createElement('div');
                         shiftTypeTag.className = `shift-tag ${getShiftTypeClass(dayData.shiftType)}`;
-                        shiftTypeTag.textContent = getShiftTypeDisplay(dayData.shiftType);
+                        let displayText = getShiftTypeDisplay(dayData.shiftType);
+                        
+                        // Add custom hours display for "Other" shifts
+                        if (dayData.shiftType === 'O') {
+                            const shiftHrs = (typeof dayData.shiftHours === 'number') ? dayData.shiftHours : 0;
+                            const vacationHrs = (typeof dayData.vacationHours === 'number') ? dayData.vacationHours : 0;
+                            const totalHrs = shiftHrs + vacationHrs;
+                            
+                            const hoursDisplayParts = [];
+                            if (shiftHrs > 0) hoursDisplayParts.push(`${shiftHrs}s`);
+                            if (vacationHrs > 0) hoursDisplayParts.push(`${vacationHrs}v`);
+                            
+                            if (hoursDisplayParts.length > 0) {
+                                displayText += ` (${hoursDisplayParts.join('+')}) = ${totalHrs}h paid`;
+                            }
+                        }
+                        
+                        shiftTypeTag.textContent = displayText;
                         shiftInfo.appendChild(shiftTypeTag);
                     }
 
@@ -1684,6 +1816,8 @@ function attachSettingsNotesRealtime() {
             document.getElementById('assignment').value = '';
             document.getElementById('isolation').value = '';
             document.getElementById('comments').value = '';
+            document.getElementById('shiftHours').value = '';
+            document.getElementById('vacationHours').value = '';
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
             const primaryBtn = document.getElementById('primaryActionBtn');
@@ -1712,6 +1846,21 @@ function attachSettingsNotesRealtime() {
 
             document.getElementById('viewShiftDate').textContent = date.toLocaleDateString();
 
+            let customHoursDisplay = '';
+            if (shift.shiftType === 'O') {
+                const hoursParts = [];
+                const shiftHrs = (typeof shift.shiftHours === 'number') ? shift.shiftHours : 0;
+                const vacationHrs = (typeof shift.vacationHours === 'number') ? shift.vacationHours : 0;
+                
+                if (shiftHrs > 0) hoursParts.push(`${shiftHrs} shift hours`);
+                if (vacationHrs > 0) hoursParts.push(`${vacationHrs} vacation hours`);
+                
+                if (hoursParts.length > 0) {
+                    const totalHours = shiftHrs + vacationHrs;
+                    customHoursDisplay = `<br><strong>Custom Hours:</strong> ${hoursParts.join(', ')} = ${totalHours} total paid hours<br><strong>Vacation Bank Impact:</strong> -${vacationHrs} hours`;
+                }
+            }
+
             const details = document.getElementById('shiftDetails');
             details.innerHTML = `
                 <div style="margin-bottom: 15px;">
@@ -1720,6 +1869,7 @@ function attachSettingsNotesRealtime() {
                     <strong>Assignment:</strong> ${shift.assignment && shift.assignment !== 'Not specified' ? shift.assignment : 'Not specified'}<br>
                     <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
                     <strong>Special Treatments:</strong> ${shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None'}<br>
+                    ${customHoursDisplay}
                     ${shift.comments ? `<strong>Comments:</strong><br>${shift.comments.replace(/\n/g, '<br>')}` : ''}
                 </div>
             `;
@@ -1752,6 +1902,8 @@ function attachSettingsNotesRealtime() {
             document.getElementById('assignment').value = shift.assignment || '';
             document.getElementById('isolation').value = shift.isolation || '';
             document.getElementById('comments').value = shift.comments || '';
+            document.getElementById('shiftHours').value = shift.shiftHours || '';
+            document.getElementById('vacationHours').value = shift.vacationHours || '';
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.checked = Array.isArray(shift.treatments) && shift.treatments.includes(cb.value);
@@ -1780,58 +1932,58 @@ function attachSettingsNotesRealtime() {
         };
 
         function loadNotes() {
-  // 1) Fast local fill for instant UI
-  try {
-    const saved = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
-    notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...saved };
-    const payNotesEl = document.getElementById('payNotes');
-    const bankEl = document.getElementById('vacationBank');
-    if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
-    if (bankEl) bankEl.value = notesData.vacationBank || 0;
-    renderOtMentorTable();
-  } catch (e) {
-    // ignore cache errors
-  }
+            // 1) Fast local fill for instant UI
+            try {
+                const saved = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
+                notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...saved };
+                const payNotesEl = document.getElementById('payNotes');
+                const bankEl = document.getElementById('vacationBank');
+                if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+                if (bankEl) bankEl.value = notesData.vacationBank || 0;
+                renderOtMentorTable();
+            } catch (e) {
+                // ignore cache errors
+            }
 
-  // 2) Cloud reconciliation (authoritative copy)
-  (async () => {
-    if (!currentUser) return;
-    try {
-      const snap = await get(getSecureRef('notes'));
-      if (snap.exists()) {
-        notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...(snap.val() || {}) };
-        localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-        const payNotesEl = document.getElementById('payNotes');
-        const bankEl = document.getElementById('vacationBank');
-        if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
-        if (bankEl) bankEl.value = notesData.vacationBank || 0;
-        renderOtMentorTable();
-        try { updateRVAndBankFigures(); } catch(e){}
-      } else if ((notesData.payNotes || (notesData.otMentor||[]).length || notesData.vacationBank)) {
-        // First-time uplift: local -> cloud
-        await set(getSecureRef('notes'), notesData);
-      }
-    } catch (e) {
-      console.warn('Notes cloud sync failed:', e.message);
-    }
-  })();
-}
+            // 2) Cloud reconciliation (authoritative copy)
+            (async () => {
+                if (!currentUser) return;
+                try {
+                    const snap = await get(getSecureRef('notes'));
+                    if (snap.exists()) {
+                        notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...(snap.val() || {}) };
+                        localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+                        const payNotesEl = document.getElementById('payNotes');
+                        const bankEl = document.getElementById('vacationBank');
+                        if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+                        if (bankEl) bankEl.value = notesData.vacationBank || 0;
+                        renderOtMentorTable();
+                        try { updateRVAndBankFigures(); } catch(e){}
+                    } else if ((notesData.payNotes || (notesData.otMentor||[]).length || notesData.vacationBank)) {
+                        // First-time uplift: local -> cloud
+                        await set(getSecureRef('notes'), notesData);
+                    }
+                } catch (e) {
+                    console.warn('Notes cloud sync failed:', e.message);
+                }
+            })();
+        }
 
         window.saveNotes = async function () {
-  notesData.payNotes = (document.getElementById('payNotes')?.value || "");
-  notesData.vacationBank = parseFloat(document.getElementById('vacationBank')?.value) || 0;
-  try {
-    // Cache for offline
-    localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-    // Cloud for cross-device sync
-    if (currentUser) await set(getSecureRef('notes'), notesData);
-    try { updateRVAndBankFigures(); } catch(e){}
-    closeNotesModal();
-  } catch (e) {
-    console.error('Error saving notes:', e);
-    alert('Failed to save notes: ' + e.message);
-  }
-};
+            notesData.payNotes = (document.getElementById('payNotes')?.value || "");
+            notesData.vacationBank = parseFloat(document.getElementById('vacationBank')?.value) || 0;
+            try {
+                // Cache for offline
+                localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+                // Cloud for cross-device sync
+                if (currentUser) await set(getSecureRef('notes'), notesData);
+                try { updateRVAndBankFigures(); } catch(e){}
+                closeNotesModal();
+            } catch (e) {
+                console.error('Error saving notes:', e);
+                alert('Failed to save notes: ' + e.message);
+            }
+        };
 
         function renderOtMentorTable() {
             const tbody = document.querySelector("#otMentorTable tbody");
@@ -1852,42 +2004,60 @@ function attachSettingsNotesRealtime() {
         }
 
         window.addOtMentorEntry = async function () {
-  const date = prompt("Enter date (YYYY-MM-DD):") || "";
-  const type = prompt("Enter type (OT/Mentor):") || "";
-  const hours = parseFloat(prompt("Enter hours:")) || 0;
-  notesData.otMentor.push({ date, type, hours });
-  renderOtMentorTable();
-  await saveNotes(); // writes local + cloud
-};
+            const date = prompt("Enter date (YYYY-MM-DD):") || "";
+            const type = prompt("Enter type (OT/Mentor/Other(specify):") || "";
+            const hours = parseFloat(prompt("Enter hours:")) || 0;
+            notesData.otMentor.push({ date, type, hours });
+            renderOtMentorTable();
+            await saveNotes(); // writes local + cloud
+        };
 
         window.deleteOtMentorEntry = async function (idx) {
-  notesData.otMentor.splice(idx, 1);
-  renderOtMentorTable();
-  await saveNotes(); // writes local + cloud
-};
+            notesData.otMentor.splice(idx, 1);
+            renderOtMentorTable();
+            await saveNotes(); // writes local + cloud
+        };
 
         function updateRVAndBankFigures() {
             const year = new Date().getFullYear();
             let rvCount = 0;
+            let regularVacationCount = 0;
+            let customVacationHours = 0;
 
             Object.keys(shiftData || {}).forEach(dateKey => {
                 const s = shiftData[dateKey];
                 if (!s) return;
                 const y = parseInt(String(dateKey).split('-')[0], 10);
-                if (s.shiftType === 'RV' && y === year) rvCount++;
+                if (y === year) {
+                    if (s.shiftType === 'RV') {
+                        rvCount++;
+                    } else if (s.shiftType === 'V') {
+                        regularVacationCount++;
+                    } else if (s.shiftType === 'O' && typeof s.vacationHours === 'number') {
+                        customVacationHours += s.vacationHours;
+                    }
+                }
             });
 
             const rvHours = rvCount * 11.25;
+            const regularVacationHours = regularVacationCount * 7.5;
             const bank = Number(notesData.vacationBank || 0);
-            const remaining = bank - rvHours;
+            const totalVacationUsed = rvHours + regularVacationHours + customVacationHours;
+            const remaining = bank - totalVacationUsed;
 
-            const rvCountEl = document.getElementById('rvCount');
-            const rvHoursEl = document.getElementById('rvHours');
-            const remEl = document.getElementById('vacationRemaining');
+            // Update all the display elements
+            const updateElement = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            };
 
-            if (rvCountEl) rvCountEl.textContent = String(rvCount);
-            if (rvHoursEl) rvHoursEl.textContent = rvHours.toFixed(2);
-            if (remEl) remEl.textContent = remaining.toFixed(2);
+            updateElement('rvCount', String(rvCount));
+            updateElement('rvHours', rvHours.toFixed(2));
+            updateElement('regularVacationCount', String(regularVacationCount));
+            updateElement('regularVacationHours', regularVacationHours.toFixed(2));
+            updateElement('customVacationHours', customVacationHours.toFixed(2));
+            updateElement('totalVacationUsed', totalVacationUsed.toFixed(2));
+            updateElement('vacationRemaining', remaining.toFixed(2));
         }
 
         // Pay settings system
@@ -1901,69 +2071,69 @@ function attachSettingsNotesRealtime() {
         };
 
         function loadPaySettings() {
-  // 1) Fast local fill
-  try {
-    const saved = JSON.parse(window.localStorage.getItem('nursing-pay-settings') || '{}');
-    paySettings = saved || {};
+            // 1) Fast local fill
+            try {
+                const saved = JSON.parse(window.localStorage.getItem('nursing-pay-settings') || '{}');
+                paySettings = saved || {};
 
-    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v ?? ''); };
-    setVal('baseRate', saved.baseRate);
-    setVal('eveningPremium', saved.eveningPremium);
-    setVal('nightPremium', saved.nightPremium);
-    setVal('weekendPremium', saved.weekendPremium);
-    setVal('manualOvertimeHours', saved.manualOvertimeHours);
-    setVal('overtimeMultiplier', saved.overtimeMultiplier ?? 1.5);
-  } catch (error) {
-    console.error('Error loading pay settings from localStorage:', error);
-    paySettings = {};
-  }
+                const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v ?? ''); };
+                setVal('baseRate', saved.baseRate);
+                setVal('eveningPremium', saved.eveningPremium);
+                setVal('nightPremium', saved.nightPremium);
+                setVal('weekendPremium', saved.weekendPremium);
+                setVal('manualOvertimeHours', saved.manualOvertimeHours);
+                setVal('overtimeMultiplier', saved.overtimeMultiplier ?? 1.5);
+            } catch (error) {
+                console.error('Error loading pay settings from localStorage:', error);
+                paySettings = {};
+            }
 
-  // 2) Cloud reconciliation
-  (async () => {
-    if (!currentUser) return;
-    try {
-      const snap = await get(getSecureRef('settings'));
-      if (snap.exists()) {
-        const cloud = snap.val() || {};
-        paySettings = cloud;
-        window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
-        ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
-          .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? (id==='overtimeMultiplier'?1.5:'')); });
-      } else if (Object.keys(paySettings).length) {
-        // First-time uplift: local -> cloud
-        await set(getSecureRef('settings'), paySettings);
-      }
-    } catch (e) {
-      console.warn('Settings cloud sync failed:', e.message);
-    }
-  })();
-}
+            // 2) Cloud reconciliation
+            (async () => {
+                if (!currentUser) return;
+                try {
+                    const snap = await get(getSecureRef('settings'));
+                    if (snap.exists()) {
+                        const cloud = snap.val() || {};
+                        paySettings = cloud;
+                        window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
+                        ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
+                            .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? (id==='overtimeMultiplier'?1.5:'')); });
+                    } else if (Object.keys(paySettings).length) {
+                        // First-time uplift: local -> cloud
+                        await set(getSecureRef('settings'), paySettings);
+                    }
+                } catch (e) {
+                    console.warn('Settings cloud sync failed:', e.message);
+                }
+            })();
+        }
 
         window.saveSettings = async function() {
-  const settings = {
-    baseRate: parseFloat(document.getElementById('baseRate')?.value) || 0,
-    eveningPremium: parseFloat(document.getElementById('eveningPremium')?.value) || 0,
-    nightPremium: parseFloat(document.getElementById('nightPremium')?.value) || 0,
-    weekendPremium: parseFloat(document.getElementById('weekendPremium')?.value) || 0,
-    manualOvertimeHours: parseFloat(document.getElementById('manualOvertimeHours')?.value) || 0,
-    overtimeMultiplier: parseFloat(document.getElementById('overtimeMultiplier')?.value) || 1.5
-  };
+            const settings = {
+                baseRate: parseFloat(document.getElementById('baseRate')?.value) || 0,
+                eveningPremium: parseFloat(document.getElementById('eveningPremium')?.value) || 0,
+                nightPremium: parseFloat(document.getElementById('nightPremium')?.value) || 0,
+                weekendPremium: parseFloat(document.getElementById('weekendPremium')?.value) || 0,
+                manualOvertimeHours: parseFloat(document.getElementById('manualOvertimeHours')?.value) || 0,
+                overtimeMultiplier: parseFloat(document.getElementById('overtimeMultiplier')?.value) || 1.5
+            };
 
-  if (settings.baseRate === 0) { alert('Please enter a base hourly rate'); return; }
+            if (settings.baseRate === 0) { alert('Please enter a base hourly rate'); return; }
 
-  try {
-    // Cache for offline
-    window.localStorage.setItem('nursing-pay-settings', JSON.stringify(settings));
-    paySettings = settings;
-    // Cloud for cross-device sync
-    if (currentUser) await set(getSecureRef('settings'), settings);
-    closeSettingsModal();
-    alert('Settings saved successfully!');
-  } catch (error) {
-    console.error('Error saving settings:', error);
-    alert('Failed to save settings: ' + error.message);
-  }
-};
+            try {
+                // Cache for offline
+                window.localStorage.setItem('nursing-pay-settings', JSON.stringify(settings));
+                paySettings = settings;
+                // Cloud for cross-device sync
+                if (currentUser) await set(getSecureRef('settings'), settings);
+                closeSettingsModal();
+                alert('Settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                alert('Failed to save settings: ' + error.message);
+            }
+        };
 
         function initializePaySettings() {
             loadPaySettings();
@@ -2105,10 +2275,7 @@ function attachSettingsNotesRealtime() {
         }
 
         function calculateShiftPay(date, shift) {
-            let hours = 11.25;
-            if (shift.shiftType === 'V') hours = 7.5;
-            else if (shift.shiftType === 'RV') hours = 11.25;
-            
+            let hours = getShiftHours(shift); // Use the new function to get actual hours
             const dayOfWeek = date.getDay();
             
             let basePay = hours * paySettings.baseRate;
@@ -2117,6 +2284,7 @@ function attachSettingsNotesRealtime() {
             let weekendPremium = 0;
             let premiums = [];
 
+            // Only calculate premiums for standard shift types, not for custom "Other" shifts
             if (shift.shiftType === 'D') {
                 if (dayOfWeek >= 1 && dayOfWeek <= 5) {
                     eveningPremium = 3.75 * paySettings.eveningPremium;
@@ -2142,12 +2310,13 @@ function attachSettingsNotesRealtime() {
                     nightPremium = 7.5 * paySettings.nightPremium;
                     premiums.push('Weekend','Evening', 'Night');
                 } else if (dayOfWeek === 0) {
-                    weekendPremium = 4.5 * paySettings.weekendPremium;
+                    weekendPremium = 4.25 * paySettings.weekendPremium;
                     eveningPremium = 3.75 * paySettings.eveningPremium;
                     nightPremium = 7.5 * paySettings.nightPremium;
                     premiums.push('Weekend','Evening', 'Night');
                 }
             }
+            // Note: For "Other" shifts with custom hours, no premiums are calculated
 
             return {
                 hours,
@@ -2168,7 +2337,7 @@ function attachSettingsNotesRealtime() {
                 <div class="pay-summary">
                     <div class="pay-summary-grid">
                         <div class="pay-summary-item">
-                            <div class="pay-summary-value">$${payData.totals.totalPay.toFixed(2)}</div>
+                            <div class="pay-summary-value">${payData.totals.totalPay.toFixed(2)}</div>
                             <div class="pay-summary-label">Total Pay</div>
                         </div>
                         <div class="pay-summary-item">
@@ -2206,16 +2375,30 @@ function attachSettingsNotesRealtime() {
 
             payData.shifts.forEach(shift => {
                 const premiumDetails = [];
-                if (shift.eveningPremium > 0) premiumDetails.push(`Evening: $${shift.eveningPremium.toFixed(2)}`);
-                if (shift.nightPremium > 0) premiumDetails.push(`Night: $${shift.nightPremium.toFixed(2)}`);
-                if (shift.weekendPremium > 0) premiumDetails.push(`Weekend: $${shift.weekendPremium.toFixed(2)}`);
+                if (shift.eveningPremium > 0) premiumDetails.push(`Evening: ${shift.eveningPremium.toFixed(2)}`);
+                if (shift.nightPremium > 0) premiumDetails.push(`Night: ${shift.nightPremium.toFixed(2)}`);
+                if (shift.weekendPremium > 0) premiumDetails.push(`Weekend: ${shift.weekendPremium.toFixed(2)}`);
+
+                let typeDisplay = getShiftTypeDisplay(shift.shiftType);
+                if (shift.shiftType === 'O') {
+                    const customHoursParts = [];
+                    if (typeof shift.shiftHours === 'number') {
+                        customHoursParts.push(`${shift.shiftHours}h`);
+                    }
+                    if (typeof shift.vacationHours === 'number') {
+                        customHoursParts.push(`${shift.vacationHours}v`);
+                    }
+                    if (customHoursParts.length > 0) {
+                        typeDisplay += ` (${customHoursParts.join(', ')})`;
+                    }
+                }
 
                 html += `
                     <tr>
                         <td>${shift.shiftDate.toLocaleDateString()}</td>
                         <td>${shift.unit}</td>
                         <td>
-                            ${getShiftTypeDisplay(shift.shiftType)}
+                            ${typeDisplay}
                             ${shift.premiums.map(p => `<span class="premium-tag ${p.toLowerCase()}">${p}</span>`).join('')}
                         </td>
                         <td>${shift.hours.toFixed(2)}</td>
@@ -2237,35 +2420,35 @@ function attachSettingsNotesRealtime() {
                     <tbody>
                         <tr>
                             <td><strong>Regular Hours (${payData.totals.regularHours.toFixed(2)})</strong></td>
-                            <td class="currency"><strong>$${payData.totals.basePay.toFixed(2)}</strong></td>
+                            <td class="currency"><strong>${payData.totals.basePay.toFixed(2)}</strong></td>
                         </tr>
                         ${payData.totals.eveningPremium > 0 ? `
                         <tr>
                             <td>Evening Premium</td>
-                            <td class="currency">$${payData.totals.eveningPremium.toFixed(2)}</td>
+                            <td class="currency">${payData.totals.eveningPremium.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         ${payData.totals.nightPremium > 0 ? `
                         <tr>
                             <td>Night Premium</td>
-                            <td class="currency">$${payData.totals.nightPremium.toFixed(2)}</td>
+                            <td class="currency">${payData.totals.nightPremium.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         ${payData.totals.weekendPremium > 0 ? `
                         <tr>
                             <td>Weekend Premium</td>
-                            <td class="currency">$${payData.totals.weekendPremium.toFixed(2)}</td>
+                            <td class="currency">${payData.totals.weekendPremium.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         ${payData.totals.overtimeHours > 0 ? `
                         <tr>
                             <td>Overtime (manual: ${payData.totals.overtimeHours.toFixed(2)}h at ${paySettings.overtimeMultiplier}x)</td>
-                            <td class="currency">$${payData.totals.overtimePay.toFixed(2)}</td>
+                            <td class="currency">${payData.totals.overtimePay.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         <tr class="total-row">
                             <td><strong>TOTAL PAY</strong></td>
-                            <td class="currency"><strong>$${payData.totals.totalPay.toFixed(2)}</strong></td>
+                            <td class="currency"><strong>${payData.totals.totalPay.toFixed(2)}</strong></td>
                         </tr>
                     </tbody>
                 </table>
@@ -2292,18 +2475,26 @@ function attachSettingsNotesRealtime() {
             csvData.push(['']);
             
             csvData.push(['PAY SETTINGS USED']);
-            csvData.push(['Base Rate', `$${paySettings.baseRate.toFixed(2)}`]);
-            csvData.push(['Evening Premium', `$${paySettings.eveningPremium.toFixed(2)}`]);
-            csvData.push(['Night Premium', `$${paySettings.nightPremium.toFixed(2)}`]);
-            csvData.push(['Weekend Premium', `$${paySettings.weekendPremium.toFixed(2)}`]);
+            csvData.push(['Base Rate', `${paySettings.baseRate.toFixed(2)}`]);
+            csvData.push(['Evening Premium', `${paySettings.eveningPremium.toFixed(2)}`]);
+            csvData.push(['Night Premium', `${paySettings.nightPremium.toFixed(2)}`]);
+            csvData.push(['Weekend Premium', `${paySettings.weekendPremium.toFixed(2)}`]);
             csvData.push(['Manual Overtime Hours', `${Number(paySettings.manualOvertimeHours || 0).toFixed(2)} hours`]);
             csvData.push(['Overtime Multiplier', `${paySettings.overtimeMultiplier}x`]);
             csvData.push(['']);
 
             csvData.push(['SHIFT BREAKDOWN']);
-            csvData.push(['Date', 'Unit', 'Shift Type', 'Hours', 'Base Pay', 'Evening Premium', 'Night Premium', 'Weekend Premium', 'Shift Total']);
+            csvData.push(['Date', 'Unit', 'Shift Type', 'Hours', 'Base Pay', 'Evening Premium', 'Night Premium', 'Weekend Premium', 'Shift Total', 'Custom Hours']);
             
             payData.shifts.forEach(shift => {
+                let customHoursInfo = '';
+                if (shift.shiftType === 'O') {
+                    const parts = [];
+                    if (typeof shift.shiftHours === 'number') parts.push(`${shift.shiftHours} shift`);
+                    if (typeof shift.vacationHours === 'number') parts.push(`${shift.vacationHours} vacation`);
+                    if (parts.length > 0) customHoursInfo = parts.join(', ');
+                }
+                
                 csvData.push([
                     shift.shiftDate.toLocaleDateString(),
                     shift.unit,
@@ -2313,7 +2504,8 @@ function attachSettingsNotesRealtime() {
                     `${shift.eveningPremium.toFixed(2)}`,
                     `${shift.nightPremium.toFixed(2)}`,
                     `${shift.weekendPremium.toFixed(2)}`,
-                    `${shift.totalPay.toFixed(2)}`
+                    `${shift.totalPay.toFixed(2)}`,
+                    customHoursInfo
                 ]);
             });
 
@@ -2322,12 +2514,12 @@ function attachSettingsNotesRealtime() {
             csvData.push(['Total Hours', payData.totals.totalHours.toFixed(2)]);
             csvData.push(['Regular Hours', payData.totals.regularHours.toFixed(2)]);
             csvData.push(['Overtime Hours', payData.totals.overtimeHours.toFixed(2)]);
-            csvData.push(['Base Pay', `$${payData.totals.basePay.toFixed(2)}`]);
-            csvData.push(['Evening Premium Total', `$${payData.totals.eveningPremium.toFixed(2)}`]);
-            csvData.push(['Night Premium Total', `$${payData.totals.nightPremium.toFixed(2)}`]);
-            csvData.push(['Weekend Premium Total', `$${payData.totals.weekendPremium.toFixed(2)}`]);
-            csvData.push(['Overtime Pay', `$${payData.totals.overtimePay.toFixed(2)}`]);
-            csvData.push(['TOTAL PAY', `$${payData.totals.totalPay.toFixed(2)}`]);
+            csvData.push(['Base Pay', `${payData.totals.basePay.toFixed(2)}`]);
+            csvData.push(['Evening Premium Total', `${payData.totals.eveningPremium.toFixed(2)}`]);
+            csvData.push(['Night Premium Total', `${payData.totals.nightPremium.toFixed(2)}`]);
+            csvData.push(['Weekend Premium Total', `${payData.totals.weekendPremium.toFixed(2)}`]);
+            csvData.push(['Overtime Pay', `${payData.totals.overtimePay.toFixed(2)}`]);
+            csvData.push(['TOTAL PAY', `${payData.totals.totalPay.toFixed(2)}`]);
 
             const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv' });
@@ -2344,15 +2536,26 @@ function attachSettingsNotesRealtime() {
                 try {
                     const year = new Date().getFullYear();
                     let rvCount = 0;
+                    let customVacationHours = 0;
+                    let regularVacationHours = 0;
                     Object.keys(shiftData || {}).forEach(k => {
                         const s = shiftData[k];
                         if (!s) return;
                         const y = parseInt(String(k).split('-')[0], 10);
-                        if (s.shiftType === 'RV' && y === year) rvCount++;
+                        if (y === year) {
+                            if (s.shiftType === 'RV') {
+                                rvCount++;
+                            } else if (s.shiftType === 'O' && typeof s.vacationHours === 'number') {
+                                customVacationHours += s.vacationHours;
+                            } else if (s.shiftType === 'V') {
+                                regularVacationHours += 7.5;
+                            }
+                        }
                     });
                     const notes = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
                     const bank = Number(notes && notes.vacationBank ? notes.vacationBank : 0);
-                    return bank - (rvCount * 11.25);
+                    const totalUsed = (rvCount * 11.25) + customVacationHours + regularVacationHours;
+                    return bank - totalUsed;
                 } catch(e) { return 0; }
             })();
 
@@ -2365,6 +2568,7 @@ function attachSettingsNotesRealtime() {
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
+            let otherShifts = 0;
             let sickCalls = 0;
             let vacations = 0;
             let requestedVacations = 0;
@@ -2376,6 +2580,8 @@ function attachSettingsNotesRealtime() {
             let pacuShifts = 0;
             let floorShifts = 0;
             let totalHours = 0;
+            let customShiftHours = 0;
+            let customVacationHours = 0;
 
             Object.keys(shiftData).forEach(dateKey => {
                 const [year] = dateKey.split('-').map(Number);
@@ -2384,18 +2590,21 @@ function attachSettingsNotesRealtime() {
                     if (shift) {
                         totalShifts++;
                         
-                        if (shift.shiftType === 'RV') {
-                            totalHours += 11.25;
-                        } else if (shift.shiftType === 'V') {
-                            totalHours += 7.5;
-                        } else {
-                            totalHours += 11.25;
-                        }
+                        // Calculate hours using the new getShiftHours function
+                        totalHours += getShiftHours(shift);
                         
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
                             nightShifts++;
+                        } else if (shift.shiftType === 'O') {
+                            otherShifts++;
+                            if (typeof shift.shiftHours === 'number') {
+                                customShiftHours += shift.shiftHours;
+                            }
+                            if (typeof shift.vacationHours === 'number') {
+                                customVacationHours += shift.vacationHours;
+                            }
                         } else if (shift.shiftType === 'S') {
                             sickCalls++;
                         } else if (shift.shiftType === 'V') {
@@ -2442,9 +2651,11 @@ function attachSettingsNotesRealtime() {
                 { label: 'Total Hours', value: totalHours.toFixed(2) },
                 { label: 'Day Shifts', value: dayShifts },
                 { label: 'Night Shifts', value: nightShifts },
+                { label: 'Other Shifts', value: otherShifts },
                 { label: 'Sick Calls', value: sickCalls },
                 { label: 'Vacations', value: `${vacations} (${(vacations * 7.5).toFixed(1)}h)` },
                 { label: 'Requested Vacations', value: `${requestedVacations} (${(requestedVacations * 11.25).toFixed(1)}h)` },
+                { label: 'Custom Other Hours', value: `${customShiftHours.toFixed(1)}h shift, ${customVacationHours.toFixed(1)}h vacation` },
                 { label: 'Remaining Vacation Hours', value: (typeof _rvRemainingForStats !== 'undefined' ? _rvRemainingForStats.toFixed(2) : '0.00') },
                 { label: 'Double Assignments', value: `${doubleAssignments} (${doubleAssignmentPercent}%)` },
                 { label: 'Single Assignments', value: `${singleAssignments} (${singleAssignmentPercent}%)` },
@@ -2471,18 +2682,15 @@ function attachSettingsNotesRealtime() {
             const csvData = [];
             
             csvData.push(['SHIFT DATA']);
-            csvData.push(['Date', 'Unit', 'Shift Type', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
+            csvData.push(['Date', 'Unit', 'Shift Type', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours', 'Custom Shift Hours', 'Custom Vacation Hours']);
 
             Object.keys(shiftData).forEach(dateKey => {
                 const shift = shiftData[dateKey];
                 const date = parseLocalDateKey(dateKey).toLocaleDateString();
                 
-                let hours = 11.25;
-                if (shift.shiftType === 'V') {
-                    hours = 7.5;
-                } else if (shift.shiftType === 'RV') {
-                    hours = 11.25;
-                }
+                const hours = getShiftHours(shift);
+                const customShiftHours = (shift.shiftType === 'O' && typeof shift.shiftHours === 'number') ? shift.shiftHours : '';
+                const customVacationHours = (shift.shiftType === 'O' && typeof shift.vacationHours === 'number') ? shift.vacationHours : '';
                 
                 csvData.push([
                     date,
@@ -2492,13 +2700,17 @@ function attachSettingsNotesRealtime() {
                     shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)',
                     shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None',
                     shift.comments ? shift.comments.replace(/\n/g, ' | ') : '',
-                    hours
+                    hours,
+                    customShiftHours,
+                    customVacationHours
                 ]);
             });
 
+            // Update statistics calculation to include the new fields
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
+            let otherShifts = 0;
             let sickCalls = 0;
             let vacations = 0;
             let requestedVacations = 0;
@@ -2510,6 +2722,8 @@ function attachSettingsNotesRealtime() {
             let pacuShifts = 0;
             let floorShifts = 0;
             let totalHours = 0;
+            let customShiftHours = 0;
+            let customVacationHours = 0;
 
             Object.keys(shiftData).forEach(dateKey => {
                 const [year] = dateKey.split('-').map(Number);
@@ -2518,18 +2732,20 @@ function attachSettingsNotesRealtime() {
                     if (shift) {
                         totalShifts++;
                         
-                        if (shift.shiftType === 'RV') {
-                            totalHours += 11.25;
-                        } else if (shift.shiftType === 'V') {
-                            totalHours += 7.5;
-                        } else {
-                            totalHours += 11.25;
-                        }
+                        totalHours += getShiftHours(shift);
                         
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
                             nightShifts++;
+                        } else if (shift.shiftType === 'O') {
+                            otherShifts++;
+                            if (typeof shift.shiftHours === 'number') {
+                                customShiftHours += shift.shiftHours;
+                            }
+                            if (typeof shift.vacationHours === 'number') {
+                                customVacationHours += shift.vacationHours;
+                            }
                         } else if (shift.shiftType === 'S') {
                             sickCalls++;
                         } else if (shift.shiftType === 'V') {
@@ -2579,9 +2795,12 @@ function attachSettingsNotesRealtime() {
             csvData.push(['Total Hours', totalHours.toFixed(2), '']);
             csvData.push(['Day Shifts', dayShifts, '']);
             csvData.push(['Night Shifts', nightShifts, '']);
+            csvData.push(['Other Shifts', otherShifts, '']);
             csvData.push(['Sick Calls', sickCalls, '']);
             csvData.push(['Vacations', vacations, (vacations * 7.5).toFixed(1) + ' hours']);
             csvData.push(['Requested Vacations', requestedVacations, (requestedVacations * 11.25).toFixed(1) + ' hours']);
+            csvData.push(['Custom Other Shift Hours', '', customShiftHours.toFixed(1) + ' hours']);
+            csvData.push(['Custom Other Vacation Hours', '', customVacationHours.toFixed(1) + ' hours']);
             csvData.push(['Double Assignments', doubleAssignments, doubleAssignmentPercent + '%']);
             csvData.push(['Single Assignments', singleAssignments, singleAssignmentPercent + '%']);
             csvData.push(['No Isolation', noIsolation, noIsolationPercent + '%']);
@@ -2606,6 +2825,7 @@ function attachSettingsNotesRealtime() {
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
+            let otherShifts = 0;
             let sickCalls = 0;
             let vacations = 0;
             let requestedVacations = 0;
@@ -2617,6 +2837,8 @@ function attachSettingsNotesRealtime() {
             let pacuShifts = 0;
             let floorShifts = 0;
             let totalHours = 0;
+            let customShiftHours = 0;
+            let customVacationHours = 0;
 
             Object.keys(shiftData).forEach(dateKey => {
                 const [year] = dateKey.split('-').map(Number);
@@ -2625,18 +2847,20 @@ function attachSettingsNotesRealtime() {
                     if (shift) {
                         totalShifts++;
                         
-                        if (shift.shiftType === 'RV') {
-                            totalHours += 11.25;
-                        } else if (shift.shiftType === 'V') {
-                            totalHours += 7.5;
-                        } else {
-                            totalHours += 11.25;
-                        }
+                        totalHours += getShiftHours(shift);
                         
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
                             nightShifts++;
+                        } else if (shift.shiftType === 'O') {
+                            otherShifts++;
+                            if (typeof shift.shiftHours === 'number') {
+                                customShiftHours += shift.shiftHours;
+                            }
+                            if (typeof shift.vacationHours === 'number') {
+                                customVacationHours += shift.vacationHours;
+                            }
                         } else if (shift.shiftType === 'S') {
                             sickCalls++;
                         } else if (shift.shiftType === 'V') {
@@ -2687,9 +2911,14 @@ function attachSettingsNotesRealtime() {
                     shiftTypes: {
                         day: dayShifts,
                         night: nightShifts,
+                        other: otherShifts,
                         sickCalls: sickCalls,
                         vacations: { count: vacations, hours: vacations * 7.5 },
                         requestedVacations: { count: requestedVacations, hours: requestedVacations * 11.25 }
+                    },
+                    customOtherHours: {
+                        shiftHours: customShiftHours,
+                        vacationHours: customVacationHours
                     },
                     assignments: {
                         double: { count: doubleAssignments, percentage: doubleAssignmentPercent },
@@ -2763,7 +2992,7 @@ function attachSettingsNotesRealtime() {
         // Auto-calculate end date when start date changes
         document.getElementById('payPeriodStart').addEventListener('change', function(e) {
             if (e.target.value) {
-                const startDate = new Date(e.target.value);
+                const startDate = parseLocalInputDate(e.target.value);
                 const endDate = new Date(startDate);
                 endDate.setDate(startDate.getDate() + 13);
                 document.getElementById('payPeriodEnd').value = formatDateForInput(endDate);
