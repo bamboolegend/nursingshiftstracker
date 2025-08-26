@@ -1273,7 +1273,7 @@
             try {
                 updateConnectionStatus('connected', 'Connected to database');
                 isFirebaseInitialized = true;
-                
+                attachSettingsNotesRealtime(); // ← NEW: keep settings/notes in sync
                 setupRealtimeListener();
                 renderCalendar();
                 updateStats();
@@ -1285,6 +1285,46 @@
                 updateConnectionStatus('disconnected', 'Connection failed: ' + error.message);
             }
         }
+
+
+
+function attachSettingsNotesRealtime() {
+  if (!currentUser) return;
+
+  try {
+    // SETTINGS
+    const settingsRef = getSecureRef('settings');
+    onValue(settingsRef, (snap) => {
+      const cloud = snap.val();
+      if (!cloud) return;
+      // Cache for offline + reflect UI if visible
+      window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
+      paySettings = cloud;
+      ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? ''); });
+    });
+
+    // NOTES
+    const notesRef = getSecureRef('notes');
+    onValue(notesRef, (snap) => {
+      const cloud = snap.val();
+      if (!cloud) return;
+      notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...cloud };
+      window.localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+      const payNotesEl = document.getElementById('payNotes');
+      const bankEl = document.getElementById('vacationBank');
+      if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+      if (bankEl) bankEl.value = notesData.vacationBank || 0;
+      renderOtMentorTable();
+      try { updateRVAndBankFigures(); } catch(e){}
+    });
+
+  } catch (e) {
+    console.error('Realtime attach failed:', e);
+  }
+}
+
+
 
         // Secure database operations helper
         function getSecureRef(path) {
@@ -1740,28 +1780,58 @@
         };
 
         function loadNotes() {
-            try {
-                const saved = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
-                notesData = { ...notesData, ...saved };
+  // 1) Fast local fill for instant UI
+  try {
+    const saved = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
+    notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...saved };
+    const payNotesEl = document.getElementById('payNotes');
+    const bankEl = document.getElementById('vacationBank');
+    if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+    if (bankEl) bankEl.value = notesData.vacationBank || 0;
+    renderOtMentorTable();
+  } catch (e) {
+    // ignore cache errors
+  }
 
-                const payNotesEl = document.getElementById('payNotes');
-                const bankEl = document.getElementById('vacationBank');
-                if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
-                if (bankEl) bankEl.value = notesData.vacationBank || 0;
+  // 2) Cloud reconciliation (authoritative copy)
+  (async () => {
+    if (!currentUser) return;
+    try {
+      const snap = await get(getSecureRef('notes'));
+      if (snap.exists()) {
+        notesData = { payNotes: "", otMentor: [], vacationBank: 0, ...(snap.val() || {}) };
+        localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+        const payNotesEl = document.getElementById('payNotes');
+        const bankEl = document.getElementById('vacationBank');
+        if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+        if (bankEl) bankEl.value = notesData.vacationBank || 0;
+        renderOtMentorTable();
+        try { updateRVAndBankFigures(); } catch(e){}
+      } else if ((notesData.payNotes || (notesData.otMentor||[]).length || notesData.vacationBank)) {
+        // First-time uplift: local -> cloud
+        await set(getSecureRef('notes'), notesData);
+      }
+    } catch (e) {
+      console.warn('Notes cloud sync failed:', e.message);
+    }
+  })();
+}
 
-                renderOtMentorTable();
-            } catch {
-                // ignore
-            }
-        }
-
-        window.saveNotes = function () {
-            notesData.payNotes = (document.getElementById('payNotes')?.value || "");
-            notesData.vacationBank = parseFloat(document.getElementById('vacationBank')?.value) || 0;
-            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-            updateRVAndBankFigures();
-            closeNotesModal();
-        };
+        window.saveNotes = async function () {
+  notesData.payNotes = (document.getElementById('payNotes')?.value || "");
+  notesData.vacationBank = parseFloat(document.getElementById('vacationBank')?.value) || 0;
+  try {
+    // Cache for offline
+    localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+    // Cloud for cross-device sync
+    if (currentUser) await set(getSecureRef('notes'), notesData);
+    try { updateRVAndBankFigures(); } catch(e){}
+    closeNotesModal();
+  } catch (e) {
+    console.error('Error saving notes:', e);
+    alert('Failed to save notes: ' + e.message);
+  }
+};
 
         function renderOtMentorTable() {
             const tbody = document.querySelector("#otMentorTable tbody");
@@ -1781,20 +1851,20 @@
             });
         }
 
-        window.addOtMentorEntry = function () {
-            const date = prompt("Enter date (YYYY-MM-DD):") || "";
-            const type = prompt("Enter type (OT/Mentor):") || "";
-            const hours = parseFloat(prompt("Enter hours:")) || 0;
-            notesData.otMentor.push({ date, type, hours });
-            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-            renderOtMentorTable();
-        };
+        window.addOtMentorEntry = async function () {
+  const date = prompt("Enter date (YYYY-MM-DD):") || "";
+  const type = prompt("Enter type (OT/Mentor):") || "";
+  const hours = parseFloat(prompt("Enter hours:")) || 0;
+  notesData.otMentor.push({ date, type, hours });
+  renderOtMentorTable();
+  await saveNotes(); // writes local + cloud
+};
 
-        window.deleteOtMentorEntry = function (idx) {
-            notesData.otMentor.splice(idx, 1);
-            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
-            renderOtMentorTable();
-        };
+        window.deleteOtMentorEntry = async function (idx) {
+  notesData.otMentor.splice(idx, 1);
+  renderOtMentorTable();
+  await saveNotes(); // writes local + cloud
+};
 
         function updateRVAndBankFigures() {
             const year = new Date().getFullYear();
@@ -1831,52 +1901,69 @@
         };
 
         function loadPaySettings() {
-            try {
-                const saved = JSON.parse(window.localStorage.getItem('nursing-pay-settings') || '{}');
-                paySettings = saved || {};
+  // 1) Fast local fill
+  try {
+    const saved = JSON.parse(window.localStorage.getItem('nursing-pay-settings') || '{}');
+    paySettings = saved || {};
 
-                const setVal = (id, v) => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = (v ?? '');
-                };
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v ?? ''); };
+    setVal('baseRate', saved.baseRate);
+    setVal('eveningPremium', saved.eveningPremium);
+    setVal('nightPremium', saved.nightPremium);
+    setVal('weekendPremium', saved.weekendPremium);
+    setVal('manualOvertimeHours', saved.manualOvertimeHours);
+    setVal('overtimeMultiplier', saved.overtimeMultiplier ?? 1.5);
+  } catch (error) {
+    console.error('Error loading pay settings from localStorage:', error);
+    paySettings = {};
+  }
 
-                setVal('baseRate', saved.baseRate);
-                setVal('eveningPremium', saved.eveningPremium);
-                setVal('nightPremium', saved.nightPremium);
-                setVal('weekendPremium', saved.weekendPremium);
-                setVal('manualOvertimeHours', saved.manualOvertimeHours);
-                setVal('overtimeMultiplier', saved.overtimeMultiplier ?? 1.5);
-            } catch (error) {
-                console.error('Error loading pay settings from localStorage:', error);
-                paySettings = {};
-            }
-        }
+  // 2) Cloud reconciliation
+  (async () => {
+    if (!currentUser) return;
+    try {
+      const snap = await get(getSecureRef('settings'));
+      if (snap.exists()) {
+        const cloud = snap.val() || {};
+        paySettings = cloud;
+        window.localStorage.setItem('nursing-pay-settings', JSON.stringify(cloud));
+        ['baseRate','eveningPremium','nightPremium','weekendPremium','manualOvertimeHours','overtimeMultiplier']
+          .forEach(id => { const el = document.getElementById(id); if (el) el.value = (cloud[id] ?? (id==='overtimeMultiplier'?1.5:'')); });
+      } else if (Object.keys(paySettings).length) {
+        // First-time uplift: local -> cloud
+        await set(getSecureRef('settings'), paySettings);
+      }
+    } catch (e) {
+      console.warn('Settings cloud sync failed:', e.message);
+    }
+  })();
+}
 
-        window.saveSettings = function() {
-            const settings = {
-                baseRate: parseFloat(document.getElementById('baseRate')?.value) || 0,
-                eveningPremium: parseFloat(document.getElementById('eveningPremium')?.value) || 0,
-                nightPremium: parseFloat(document.getElementById('nightPremium')?.value) || 0,
-                weekendPremium: parseFloat(document.getElementById('weekendPremium')?.value) || 0,
-                manualOvertimeHours: parseFloat(document.getElementById('manualOvertimeHours')?.value) || 0,
-                overtimeMultiplier: parseFloat(document.getElementById('overtimeMultiplier')?.value) || 1.5
-            };
+        window.saveSettings = async function() {
+  const settings = {
+    baseRate: parseFloat(document.getElementById('baseRate')?.value) || 0,
+    eveningPremium: parseFloat(document.getElementById('eveningPremium')?.value) || 0,
+    nightPremium: parseFloat(document.getElementById('nightPremium')?.value) || 0,
+    weekendPremium: parseFloat(document.getElementById('weekendPremium')?.value) || 0,
+    manualOvertimeHours: parseFloat(document.getElementById('manualOvertimeHours')?.value) || 0,
+    overtimeMultiplier: parseFloat(document.getElementById('overtimeMultiplier')?.value) || 1.5
+  };
 
-            if (settings.baseRate === 0) {
-                alert('Please enter a base hourly rate');
-                return;
-            }
+  if (settings.baseRate === 0) { alert('Please enter a base hourly rate'); return; }
 
-            try {
-                window.localStorage.setItem('nursing-pay-settings', JSON.stringify(settings));
-                paySettings = settings;
-                closeSettingsModal();
-                alert('Settings saved successfully!');
-            } catch (error) {
-                console.error('Error saving settings to localStorage:', error);
-                alert('Failed to save settings: ' + error.message);
-            }
-        };
+  try {
+    // Cache for offline
+    window.localStorage.setItem('nursing-pay-settings', JSON.stringify(settings));
+    paySettings = settings;
+    // Cloud for cross-device sync
+    if (currentUser) await set(getSecureRef('settings'), settings);
+    closeSettingsModal();
+    alert('Settings saved successfully!');
+  } catch (error) {
+    console.error('Error saving settings:', error);
+    alert('Failed to save settings: ' + error.message);
+  }
+};
 
         function initializePaySettings() {
             loadPaySettings();
