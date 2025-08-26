@@ -5,99 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nursing Shift Tracker</title>
     <style>
-        /* Password Protection Styles */
-        .password-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .password-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .password-header h1 {
-            color: #2d3748;
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .password-header p {
-            color: #4a5568;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-        }
-
-        .password-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-family: inherit;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .password-input:focus {
-            outline: none;
-            border-color: #4299e1;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
-        }
-
-        .password-btn {
-            background: linear-gradient(135deg, #4299e1, #667eea);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            min-height: 44px;
-            touch-action: manipulation;
-        }
-
-        .password-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .password-btn:active {
-            transform: scale(0.98);
-        }
-
-        .password-error {
-            color: #e53e3e;
-            font-size: 0.9rem;
-            font-weight: 500;
-            margin-top: 5px;
-            min-height: 20px;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -110,6 +17,105 @@
             background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
             min-height: 100vh;
             color: #333;
+        }
+
+        /* LOGIN SCREEN STYLES */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .login-container h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .login-container p {
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .login-status.error {
+            background: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+        }
+
+        .login-status.success {
+            background: rgba(72, 187, 120, 0.1);
+            color: #38a169;
+        }
+
+        .login-status.info {
+            background: rgba(66, 153, 225, 0.1);
+            color: #4299e1;
+        }
+
+        /* USER INFO STYLES */
+        .user-info {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #c53030;
         }
 
         .container {
@@ -593,6 +599,109 @@
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
 
+        /* Pay Calculation Styles */
+        .pay-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: #f7fafc;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .pay-table th,
+        .pay-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+        }
+
+        .pay-table th {
+            background: linear-gradient(135deg, #4299e1, #667eea);
+            color: white;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .pay-table td {
+            background: white;
+        }
+
+        .pay-table .currency {
+            text-align: right;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .pay-table .total-row {
+            background: #f0fff4 !important;
+            font-weight: 700;
+            border-top: 2px solid #38a169;
+        }
+
+        .pay-table .total-row td {
+            background: #f0fff4 !important;
+        }
+
+        .pay-summary {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .pay-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .pay-summary-item {
+            text-align: center;
+        }
+
+        .pay-summary-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .pay-summary-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .premium-tag {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        .premium-tag.evening {
+            background: rgba(237, 137, 54, 0.1);
+            color: #dd6b20;
+        }
+
+        .premium-tag.night {
+            background: rgba(74, 85, 104, 0.1);
+            color: #4a5568;
+        }
+
+        .premium-tag.weekend {
+            background: rgba(72, 187, 120, 0.1);
+            color: #38a169;
+        }
+
+        .premium-tag.overtime {
+            background: rgba(229, 62, 62, 0.1);
+            color: #e53e3e;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
@@ -616,6 +725,7 @@
                 margin-left: 0;
                 justify-content: space-between;
                 width: 100%;
+                flex-wrap: wrap;
             }
 
             .calendar {
@@ -741,31 +851,54 @@
                 box-shadow: initial;
             }
         }
+
+        /* Keep export buttons on one line (mobile) */
+        @media (max-width: 768px) {
+            .export-controls {
+                flex-wrap: nowrap !important;
+                width: 100%;
+                justify-content: center;
+                gap: 8px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .export-btn {
+                flex: 1 1 0 !important;
+                min-width: 0;
+                white-space: nowrap;
+                padding: 6px 8px;
+                font-size: 0.72rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .export-btn {
+                padding: 5px 7px;
+                font-size: 0.68rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Password Protection Screen -->
-    <div class="password-screen" id="passwordScreen">
-        <div class="password-container">
-            <div class="password-header">
-                <h1>🏥 Nursing Shift Tracker</h1>
-                <p>Please enter the password to access the application</p>
-            </div>
-            <div class="password-form">
-                <input type="password" id="passwordInput" placeholder="Enter password" class="password-input">
-                <button onclick="checkPassword()" class="password-btn">Access Application</button>
-                <div id="passwordError" class="password-error"></div>
-            </div>
+    <!-- Login screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1>🏥 Nursing Shift Tracker</h1>
+            <p>Please sign in to access your shift data</p>
+            <button id="loginBtn" class="login-btn">Sign in with Google</button>
+            <div id="loginStatus" class="login-status"></div>
         </div>
     </div>
 
-    <div class="container" id="mainApp" style="display: none;">
+    <!-- App container - initially hidden -->
+    <div id="appContainer" class="container" style="display: none;">
         <div class="header">
             <h1>🏥 Nursing Shift Tracker</h1>
             <p>Track your nursing assignments and workload</p>
-            <div class="connection-status loading" id="connectionStatus">
+            <div class="connection-status connected" id="connectionStatus">
                 <div class="status-dot"></div>
-                <span>Connecting to database...</span>
+                <span>Connected to database</span>
             </div>
         </div>
 
@@ -776,8 +909,12 @@
                 <button class="nav-btn" onclick="changeMonth(1)">Next →</button>
             </div>
             <div class="export-controls">
-                <button class="export-btn" onclick="exportToCSV()">📊 Export CSV</button>
-                <button class="export-btn" onclick="exportToJSON()">📋 Export JSON</button>            </div>
+                <button class="export-btn" onclick="openNotesModal()">📝<br>Notes</button>
+                <button class="export-btn" onclick="openPayPeriodModal()">💰<br>Calculate Pay</button>
+                <button class="export-btn" onclick="openSettingsModal()">⚙️<br>Settings</button>
+                <button class="export-btn" onclick="exportToCSV()">📊<br>Export<br>CSV</button>
+                <button class="export-btn" onclick="exportToJSON()">📋<br>Export<br>JSON</button>
+            </div>
         </div>
 
         <div class="calendar">
@@ -795,9 +932,21 @@
         <div class="modal-content">
             <h3><span id="modalTitle">Add Shift</span> for <span id="selectedDate"></span></h3>
 
-            
             <div class="form-group">
-                <label for="unit">Unit</label>
+                <label for="shiftType">Shift Type</label>
+                <select id="shiftType">
+                    <option value="">Select Shift Type</option>
+                    <option value="D">D - Day</option>
+                    <option value="N">N - Night</option>
+                    <option value="O">O - Other</option>
+                    <option value="S">S - Sick Call</option>
+                    <option value="V">V - Vacation</option>
+                    <option value="RV">RV - Requested Vacation</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="unit">Unit (required for Day/Night; optional otherwise)</label>
                 <select id="unit" required>
                     <option value="">Select Unit</option>
                     <option value="MSICU">MSICU</option>
@@ -807,19 +956,6 @@
                     <option value="TGPACU">TGPACU</option>
                     <option value="TWPACU">TWPACU</option>
                     <option value="Floor">Floor</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="shiftType">Shift Type (Optional)</label>
-                <select id="shiftType">
-                    <option value="">Select Shift Type</option>
-                    <option value="D">D - Day</option>
-                    <option value="N">N - Night</option>
-                    <option value="O">O - Other</option>
-                    <option value="S">S - Sick Call</option>
-                    <option value="V">V - Vacation</option>
-                    <option value="RV">RV - Requested Vacation</option>
                 </select>
             </div>
 
@@ -869,11 +1005,10 @@
                 <textarea id="comments" rows="3" placeholder="Any additional notes about this shift..."></textarea>
             </div>
 
-<div class="modal-buttons">
-    <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
-    <button id="primaryActionBtn" class="modal-btn primary">Add Shift</button>
-</div>
-
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+                <button id="primaryActionBtn" class="modal-btn primary">Add Shift</button>
+            </div>
         </div>
     </div>
 
@@ -890,82 +1025,260 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h3>⚙️ Pay Settings</h3>
+            <div class="form-group">
+                <label for="baseRate">Base Hourly Rate ($)</label>
+                <input type="number" id="baseRate" step="0.01" placeholder="e.g., 35.50">
+            </div>
+            <div class="form-group">
+                <label for="eveningPremium">Evening Premium ($/hr)</label>
+                <input type="number" id="eveningPremium" step="0.01" placeholder="e.g., 2.50">
+            </div>
+            <div class="form-group">
+                <label for="nightPremium">Night Premium ($/hr)</label>
+                <input type="number" id="nightPremium" step="0.01" placeholder="e.g., 4.00">
+            </div>
+            <div class="form-group">
+                <label for="weekendPremium">Weekend Premium ($/hr)</label>
+                <input type="number" id="weekendPremium" step="0.01" placeholder="e.g., 3.00">
+            </div>
+            <div class="form-group">
+                <label for="manualOvertimeHours">Overtime Hours (manual entry)</label>
+                <input type="number" id="manualOvertimeHours" step="0.25" placeholder="e.g., 10">
+            </div>
+            <div class="form-group">
+                <label for="overtimeMultiplier">Overtime Multiplier</label>
+                <input type="number" id="overtimeMultiplier" step="0.1" placeholder="e.g., 1.5" value="1.5">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeSettingsModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="saveSettings()">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pay Period Modal -->
+    <div class="modal" id="payPeriodModal">
+        <div class="modal-content">
+            <h3>💰 Select Pay Period</h3>
+            <div class="form-group">
+                <label for="payPeriodStart">Pay Period Start Date</label>
+                <input type="date" id="payPeriodStart" required>
+            </div>
+            <div class="form-group">
+                <label for="payPeriodEnd">Pay Period End Date</label>
+                <input type="date" id="payPeriodEnd" required>
+            </div>
+            <div class="form-group">
+                <label>Quick Select Bi-Weekly Periods:</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+                    <button type="button" class="modal-btn secondary" onclick="setCurrentBiWeekly()">Current Period</button>
+                    <button type="button" class="modal-btn secondary" onclick="setPreviousBiWeekly()">Previous Period</button>
+                    <button type="button" class="modal-btn secondary" onclick="setNextBiWeekly()">Next Period</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closePayPeriodModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="calculatePay()">Calculate Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pay Calculation Results Modal -->
+    <div class="modal" id="payResultsModal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+            <h3>💰 Pay Calculation - <span id="payResultsPeriod"></span></h3>
+            <div id="payResultsContent"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="exportPayCSV()">📄 Export Pay CSV</button>
+                <button class="modal-btn secondary" onclick="closePayResultsModal()">Close</button>
+                <button class="modal-btn primary" onclick="openPayPeriodModal()">Calculate Another Period</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Modal -->
+    <div class="modal" id="notesModal">
+        <div class="modal-content" style="max-width: 800px; max-height: 90vh;">
+            <h3>📝 Personal Notes</h3>
+            <div class="form-group">
+                <label>Current Rate & Differentials (notes for this year)</label>
+                <textarea id="payNotes" rows="3" placeholder="e.g. Base $35.50, Evening $2.50, Night $4.00, Weekend $3.00"></textarea>
+            </div>
+            <div class="form-group">
+                <label>OT / Mentor Records</label>
+                <table class="pay-table" id="otMentorTable">
+                    <thead>
+                        <tr><th>Date</th><th>Type</th><th>Hours</th><th></th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button class="modal-btn secondary" onclick="addOtMentorEntry()">+ Add Entry</button>
+            </div>
+            <div class="form-group">
+                <label for="vacationBank">Vacation Bank (hours)</label>
+                <input type="number" id="vacationBank" step="0.25" placeholder="e.g. 120">
+                <div style="margin-top:6px;">
+                    <strong>Requested Vacations this year:</strong>
+                    <span id="rvCount">0</span> (× 11.25h = <span id="rvHours">0.00</span> h)
+                </div>
+                <div style="margin-top:6px;">
+                    <strong>Remaining bank:</strong> <span id="vacationRemaining">0.00</span> h
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeNotesModal()">Close</button>
+                <button class="modal-btn primary" onclick="saveNotes()">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
 
-const APPROVED_EMAILS = [
-    'yvonzh@gmail.com',           // YOUR EMAIL HERE
-    // Add more emails as needed
-];
+        // CHANGE THIS TO YOUR EMAIL
+        const APPROVED_EMAILS = [
+            'yvonzh@gmail.com', // Replace with your email
+        ];
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
-  authDomain: "nursing-shift-tracker.firebaseapp.com",
-  databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
-  projectId: "nursing-shift-tracker",
-  storageBucket: "nursing-shift-tracker.firebasestorage.app",
-  messagingSenderId: "911404850414",
-  appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
-  measurementId: "G-QMM1YG26K5"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0Bg6ppc4UkoNQjWckpMkjqrle4ieuQlU",
+            authDomain: "nursing-shift-tracker.firebaseapp.com",
+            databaseURL: "https://nursing-shift-tracker-default-rtdb.firebaseio.com",
+            projectId: "nursing-shift-tracker",
+            storageBucket: "nursing-shift-tracker.firebasestorage.app",
+            messagingSenderId: "911404850414",
+            appId: "1:911404850414:web:ebe494fa1968ea0e4667ff",
+            measurementId: "G-QMM1YG26K5"
+        };
 
-        // Password protection
-        const APP_PASSWORD = '7997'; // Change this to your desired password
-
-window.checkPassword = function() {
-    const input = document.getElementById('passwordInput').value;
-    const errorDiv = document.getElementById('passwordError');
-
-    if (input === APP_PASSWORD) {
-        document.getElementById('passwordScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-
-        if (!isFirebaseInitialized) {
-            initFirebase();
-        }
-    } else {
-        errorDiv.textContent = "Incorrect password. Please try again.";
-    }
-};
-
-        // Allow Enter key to submit password
-        document.addEventListener('DOMContentLoaded', function() {
-            const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput) {
-                passwordInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        checkPassword();
-                    }
-                });
-                passwordInput.focus();
-            }
-        });
-
-        let app, database;
+        // Global variables
+        let app, database, auth;
+        let currentUser = null;
         let isFirebaseInitialized = false;
         let currentDate = new Date();
         let selectedDay = null;
         let selectedDateKey = null;
         let shiftData = {};
         let currentShiftId = null;
-	let isEditing = false;
-	window.currentDate = currentDate;
-	window.shiftData = shiftData;
-	
+        let isEditing = false;
+        let paySettings = {};
+        let notesData = {
+            payNotes: "",
+            otMentor: [],
+            vacationBank: 0
+        };
+        let currentPayPeriod = { start: null, end: null };
+        
+        // Expose globals for debugging/access
+        window.currentDate = currentDate;
+        window.shiftData = shiftData;
 
-        async function initFirebase() {
+        // Initialize Firebase
+        app = initializeApp(firebaseConfig);
+        database = getDatabase(app);
+        auth = getAuth(app);
+
+        // Set up Google auth provider
+        const provider = new GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+
+        // Login function
+        async function signInWithGoogle() {
             try {
-                app = initializeApp(firebaseConfig);
-                database = getDatabase(app);
+                setLoginStatus('Signing in...', 'info');
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
                 
+                if (!APPROVED_EMAILS.includes(user.email)) {
+                    setLoginStatus('Access denied. Your email is not authorized.', 'error');
+                    await signOut(auth);
+                    return;
+                }
+
+                setLoginStatus('Sign in successful!', 'success');
+                currentUser = user;
+                
+            } catch (error) {
+                console.error('Sign in error:', error);
+                setLoginStatus('Sign in failed: ' + error.message, 'error');
+            }
+        }
+
+        // Logout function
+        window.logout = async function() {
+            if (confirm('Are you sure you want to sign out?')) {
+                try {
+                    await signOut(auth);
+                    currentUser = null;
+                    showLoginScreen();
+                } catch (error) {
+                    console.error('Sign out error:', error);
+                }
+            }
+        };
+
+        // Set login status message
+        function setLoginStatus(message, type) {
+            const statusEl = document.getElementById('loginStatus');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.className = `login-status ${type}`;
+            }
+        }
+
+        // Show/hide screens
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showAppScreen() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+        }
+
+        // Authentication state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user && APPROVED_EMAILS.includes(user.email)) {
+                currentUser = user;
+                showAppScreen();
+                initializeSecureApp(); // Initialize the app after authentication
+                
+                // Add user info to header
+                const header = document.querySelector('.header');
+                if (header && !header.querySelector('.user-info')) {
+                    const userInfo = document.createElement('div');
+                    userInfo.className = 'user-info';
+                    userInfo.innerHTML = `
+                        <span>Welcome, ${user.displayName || user.email}</span>
+                        <button onclick="logout()" class="logout-btn">Logout</button>
+                    `;
+                    header.appendChild(userInfo);
+                }
+            } else {
+                currentUser = null;
+                showLoginScreen();
+            }
+        });
+
+        // Initialize app after authentication
+        async function initializeSecureApp() {
+            try {
                 updateConnectionStatus('connected', 'Connected to database');
                 isFirebaseInitialized = true;
                 
                 setupRealtimeListener();
                 renderCalendar();
                 updateStats();
+                try { updateRVAndBankFigures(); } catch(e){}
+                initializePaySettings();
                 
             } catch (error) {
                 console.error('Firebase initialization error:', error);
@@ -973,47 +1286,213 @@ window.checkPassword = function() {
             }
         }
 
-        function updateConnectionStatus(status, message) {
-            const statusElement = document.getElementById('connectionStatus');
-            statusElement.className = `connection-status ${status}`;
-            statusElement.querySelector('span').textContent = message;
+        // Secure database operations helper
+        function getSecureRef(path) {
+            if (!currentUser) throw new Error('User not authenticated');
+            return ref(database, `users/${currentUser.uid}/${path}`);
         }
 
-        function setupRealtimeListener() {
-            if (!isFirebaseInitialized) return;
+        // Helper functions
+        window.isWorkShift = function(st) { return st === 'D' || st === 'N'; };
+
+        window.applyShiftTypeConstraints = function() {
+            const sEl = document.getElementById('shiftType');
+            const s = sEl ? sEl.value : '';
+            const requires = window.isWorkShift(s);
+            const isNonWork = (s === 'V' || s === 'RV' || s === 'S');
+            const unitEl = document.getElementById('unit');
+            const unitLabel = unitEl && unitEl.previousElementSibling && unitEl.previousElementSibling.tagName.toLowerCase()==='label' ? unitEl.previousElementSibling : null;
+
+            if (unitEl) {
+                unitEl.required = requires;
+                unitEl.disabled = isNonWork;
+            }
+            if (unitLabel) {
+                unitLabel.textContent = requires
+                    ? 'Unit (required for Day/Night; optional otherwise)'
+                    : (isNonWork ? 'Unit (not required for this shift type)' : 'Unit (optional for Other)');
+            }
+
+            const assignmentEl = document.getElementById('assignment');
+            const isolationEl = document.getElementById('isolation');
+            const checkboxes = document.querySelectorAll('#shiftModal input[type="checkbox"]');
+            const disable = isNonWork;
+            if (assignmentEl) assignmentEl.disabled = disable;
+            if (isolationEl)  isolationEl.disabled  = disable;
+            checkboxes.forEach(cb => cb.disabled = disable);
+        };
+
+        // SECURE DATABASE FUNCTIONS
+
+        // SECURE ADD SHIFT
+        window.addShift = async function() {
+            if (!currentUser) {
+                alert('Please sign in to add shifts');
+                return;
+            }
+
+            const unit = document.getElementById('unit').value;
+            const stVal = document.getElementById('shiftType').value || '';
+            const requiresUnit = window.isWorkShift(stVal);
+            const isNonWork = (stVal === 'V' || stVal === 'RV' || stVal === 'S');
+            if (requiresUnit && !unit) { 
+                alert('Please select a unit for Day/Night shifts'); 
+                return; 
+            }
+
+            const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+            const shiftRecord = {
+                id: Date.now().toString(),
+                unit,
+                shiftType: document.getElementById('shiftType').value || 'Not specified',
+                assignment: document.getElementById('assignment').value || 'Not specified',
+                isolation: document.getElementById('isolation').value || 'Not specified',
+                treatments,
+                comments: document.getElementById('comments').value || '',
+                date: selectedDateKey,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                const shiftRef = getSecureRef(`nursing-shifts/${selectedDateKey}`);
+                await set(shiftRef, shiftRecord);
+                closeModal();
+                try { updateRVAndBankFigures(); } catch(e){}
+            } catch (error) {
+                console.error('Error adding shift:', error);
+                alert('Failed to add shift: ' + error.message);
+            }
+        };
+
+        // SECURE UPDATE SHIFT  
+        window.updateShift = async function() {
+            if (!currentUser) {
+                alert('Please sign in to update shifts');
+                return;
+            }
+
+            const unit = document.getElementById('unit').value;
+            const stVal = document.getElementById('shiftType').value || '';
+            const requiresUnit = window.isWorkShift(stVal);
+            const isNonWork = (stVal === 'V' || stVal === 'RV' || stVal === 'S');
+            if (requiresUnit && !unit) { 
+                alert('Please select a unit for Day/Night shifts'); 
+                return; 
+            }
+
+            const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+            const shiftRecord = {
+                id: currentShiftId,
+                unit,
+                shiftType: document.getElementById('shiftType').value || 'Not specified',
+                assignment: document.getElementById('assignment').value || 'Not specified',
+                isolation: document.getElementById('isolation').value || 'Not specified',
+                treatments,
+                comments: document.getElementById('comments').value || '',
+                date: selectedDateKey,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                const shiftRef = getSecureRef(`nursing-shifts/${selectedDateKey}`);
+                await set(shiftRef, shiftRecord);
+                closeModal();
+            } catch (error) {
+                console.error('Error updating shift:', error);
+                alert('Failed to update shift: ' + error.message);
+            }
+        };
+
+        // SECURE DELETE SHIFT
+        window.deleteShift = async function() {
+            if (!currentUser) {
+                alert('Please sign in to delete shifts');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this shift?')) return;
             
-            const shiftsRef = ref(database, 'nursing-shifts');
-	onValue(shiftsRef, (snapshot) => {
-  	  const data = snapshot.val();
-  	  shiftData = data || {};
-  	  window.shiftData = shiftData;       // expose live data for UI/debug
-  	  renderCalendar();
-  	  updateStats();
+            try {
+                const shiftRef = getSecureRef(`nursing-shifts/${selectedDateKey}`);
+                await remove(shiftRef);
+                closeViewModal();
+                try { updateRVAndBankFigures(); } catch(e){}
+            } catch (error) {
+                console.error('Error deleting shift:', error);
+                alert('Failed to delete shift: ' + error.message);
+            }
+        };
+
+        // SECURE REALTIME LISTENER
+        function setupRealtimeListener() {
+            if (!currentUser) return;
+            
+            const shiftsRef = getSecureRef('nursing-shifts');
+            onValue(shiftsRef, (snapshot) => {
+                const data = snapshot.val();
+                shiftData = data || {};
+                window.shiftData = shiftData;
+                renderCalendar();
+                updateStats();
             }, (error) => {
                 console.error('Database read error:', error);
                 updateConnectionStatus('disconnected', 'Error reading from database: ' + error.message);
             });
         }
 
-window.changeMonth = function(direction) {
-  currentDate.setMonth(currentDate.getMonth() + direction);
-  window.currentDate = currentDate;   // keep in sync
-  renderCalendar();
-};
+        // Utility functions
+        function updateConnectionStatus(status, message) {
+            const statusElement = document.getElementById('connectionStatus');
+            if (statusElement) {
+                statusElement.className = `connection-status ${status}`;
+                const span = statusElement.querySelector('span');
+                if (span) span.textContent = message;
+            }
+        }
 
-function getDateKey(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0'); // FIX: +1
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-}
+        window.changeMonth = function(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            window.currentDate = currentDate;
+            renderCalendar();
+        };
 
-function getDateKeyUnpadded(date) {
-  const y = date.getFullYear();
-  const m = (date.getMonth() + 1);  // 1..12 (no pad)
-  const d = date.getDate();          // 1..31 (no pad)
-  return `${y}-${m}-${d}`;
-}
+        function getDateKey(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function getDateKeyUnpadded(date) {
+            const y = date.getFullYear();
+            const m = (date.getMonth() + 1);
+            const d = date.getDate();
+            return `${y}-${m}-${d}`;
+        }
+
+        function parseLocalDateKey(dateKey) {
+            if (dateKey instanceof Date) return new Date(dateKey.getFullYear(), dateKey.getMonth(), dateKey.getDate());
+            const parts = String(dateKey).split('-').map(Number);
+            if (parts.length >= 3 && !Number.isNaN(parts[0])) {
+                const y = parts[0], m = parts[1], d = parts[2];
+                return new Date(y, m - 1, d);
+            }
+            return new Date(dateKey);
+        }
+
+        function parseLocalInputDate(inputStr) {
+            const [y, m, d] = String(inputStr).split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        function formatDateForInputLocal(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
 
         function getShiftTypeDisplay(shiftType) {
             const shiftTypeMap = {
@@ -1072,16 +1551,14 @@ function getDateKeyUnpadded(date) {
                 const dayElement = document.createElement('div');
                 dayElement.className = 'calendar-day';
                 
-const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
 
-// Try both key styles: padded (YYYY-MM-DD) and unpadded (YYYY-M-D)
-const paddedKey   = getDateKey(date);
-const unpaddedKey = getDateKeyUnpadded(date);
-const dayData     = shiftData[paddedKey] || shiftData[unpaddedKey];
-const resolvedKey = shiftData[paddedKey] ? paddedKey
-                  : (shiftData[unpaddedKey] ? unpaddedKey : null);
-dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
-
+                const paddedKey   = getDateKey(date);
+                const unpaddedKey = getDateKeyUnpadded(date);
+                const dayData     = shiftData[paddedKey] || shiftData[unpaddedKey];
+                const resolvedKey = shiftData[paddedKey] ? paddedKey
+                                  : (shiftData[unpaddedKey] ? unpaddedKey : null);
+                dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
                 
                 if (date.toDateString() === today.toDateString()) {
                     dayElement.classList.add('today');
@@ -1096,7 +1573,6 @@ dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
                 shiftInfo.className = 'shift-info';
 
                 if (dayData) {
-                    // Add shift type tag first if it exists
                     if (dayData.shiftType) {
                         const shiftTypeTag = document.createElement('div');
                         shiftTypeTag.className = `shift-tag ${getShiftTypeClass(dayData.shiftType)}`;
@@ -1104,20 +1580,19 @@ dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
                         shiftInfo.appendChild(shiftTypeTag);
                     }
 
-                    const unitTag = document.createElement('div');
-                    unitTag.className = 'shift-tag';
-                    
-                    if (['TGPACU', 'TWPACU'].includes(dayData.unit)) {
-                        unitTag.classList.add('pacu');
-                    } else if (dayData.unit === 'Floor') {
-                        unitTag.classList.add('floor');
-                    } else {
-                        unitTag.classList.add('icu');
+                    if (dayData.unit && dayData.unit !== 'N/A') {
+                        const unitTag = document.createElement('div');
+                        unitTag.className = 'shift-tag';
+                        if (['TGPACU', 'TWPACU'].includes(dayData.unit)) {
+                            unitTag.classList.add('pacu');
+                        } else if (dayData.unit === 'Floor') {
+                            unitTag.classList.add('floor');
+                        } else {
+                            unitTag.classList.add('icu');
+                        }
+                        unitTag.textContent = dayData.unit;
+                        shiftInfo.appendChild(unitTag);
                     }
-                    
-                    unitTag.textContent = dayData.unit;
-                    shiftInfo.appendChild(unitTag);
-
                     if (dayData.assignment === 'Double') {
                         const assignmentTag = document.createElement('div');
                         assignmentTag.className = 'shift-tag';
@@ -1142,7 +1617,7 @@ dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
                         shiftInfo.appendChild(treatmentTag);
                     }
 
-} else {
+                } else {
                     const addBtn = document.createElement('div');
                     addBtn.className = 'add-shift-btn';
                     addBtn.textContent = '+ Add Shift';
@@ -1158,28 +1633,31 @@ dayElement.onclick = () => viewShift(date, dayData, resolvedKey);
             }
         }
 
-window.openModal = function(date) {
-  isEditing = false;
-  selectedDay = date;
-  selectedDateKey = getDateKey(date);
+        window.openModal = function(date) {
+            isEditing = false;
+            selectedDay = date;
+            selectedDateKey = getDateKey(date);
 
-  document.getElementById('selectedDate').textContent = date.toLocaleDateString();
-  document.getElementById('unit').value = '';
-  document.getElementById('shiftType').value = '';
-  document.getElementById('assignment').value = '';
-  document.getElementById('isolation').value = '';
-  document.getElementById('comments').value = '';
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            document.getElementById('selectedDate').textContent = date.toLocaleDateString();
+            document.getElementById('unit').value = '';
+            document.getElementById('shiftType').value = '';
+            document.getElementById('assignment').value = '';
+            document.getElementById('isolation').value = '';
+            document.getElementById('comments').value = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-const primaryBtn = document.getElementById('primaryActionBtn');
-// Cleanly remove any previous click handlers before attaching a new one
-primaryBtn.replaceWith(primaryBtn.cloneNode(true));
-const freshBtn = document.getElementById('primaryActionBtn');
-  document.getElementById('modalTitle').textContent = 'Add Shift';
-freshBtn.textContent = 'Add Shift';
-freshBtn.onclick = addShift;
-  document.getElementById('shiftModal').classList.add('active');
-};
+            const primaryBtn = document.getElementById('primaryActionBtn');
+            primaryBtn.replaceWith(primaryBtn.cloneNode(true));
+            const freshBtn = document.getElementById('primaryActionBtn');
+            document.getElementById('modalTitle').textContent = 'Add Shift';
+            freshBtn.textContent = 'Add Shift';
+            freshBtn.onclick = addShift;
+            
+            try { applyShiftTypeConstraints(); } catch(e) {}
+
+            try { document.getElementById("shiftType").focus(); } catch(e) {}
+            document.getElementById('shiftModal').classList.add('active');
+        };
 
         window.closeModal = function() {
             document.getElementById('shiftModal').classList.remove('active');
@@ -1187,134 +1665,610 @@ freshBtn.onclick = addShift;
             selectedDateKey = null;
         };
 
-window.addShift = async function() {
-  const unit = document.getElementById('unit').value;
-  if (!unit) { alert('Please select a unit'); return; }
+        window.viewShift = function(date, shift, key) {
+            selectedDay = date;
+            selectedDateKey = key || getDateKey(date);
+            currentShiftId = shift.id;
 
-  const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+            document.getElementById('viewShiftDate').textContent = date.toLocaleDateString();
 
-  const shiftRecord = {
-    id: Date.now().toString(),
-    unit,
-    shiftType: document.getElementById('shiftType').value || 'Not specified',
-    assignment: document.getElementById('assignment').value || 'Not specified',
-    isolation: document.getElementById('isolation').value || 'Not specified',
-    treatments,
-    comments: document.getElementById('comments').value || '',
-    date: selectedDateKey,
-    createdAt: new Date().toISOString()
-  };
+            const details = document.getElementById('shiftDetails');
+            details.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>Unit:</strong> ${shift.unit || "N/A"}<br>
+                    <strong>Shift Type:</strong> ${shift.shiftType && shift.shiftType !== 'Not specified' ? getShiftTypeDisplay(shift.shiftType) : 'Not specified'}<br>
+                    <strong>Assignment:</strong> ${shift.assignment && shift.assignment !== 'Not specified' ? shift.assignment : 'Not specified'}<br>
+                    <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
+                    <strong>Special Treatments:</strong> ${shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None'}<br>
+                    ${shift.comments ? `<strong>Comments:</strong><br>${shift.comments.replace(/\n/g, '<br>')}` : ''}
+                </div>
+            `;
 
-  const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
-  await set(shiftRef, shiftRecord);
+            document.getElementById('viewShiftModal').classList.add('active');
+        };
 
-  closeModal(); // your existing function to hide the modal
-};
-
-window.updateShift = async function() {
-  const unit = document.getElementById('unit').value;
-  if (!unit) { alert('Please select a unit'); return; }
-
-  const treatments = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-
-  const shiftRecord = {
-    id: currentShiftId, // keep same id
-    unit,
-    shiftType: document.getElementById('shiftType').value || 'Not specified',
-    assignment: document.getElementById('assignment').value || 'Not specified',
-    isolation: document.getElementById('isolation').value || 'Not specified',
-    treatments,
-    comments: document.getElementById('comments').value || '',
-    date: selectedDateKey,
-    updatedAt: new Date().toISOString()
-  };
-
-  const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
-  await set(shiftRef, shiftRecord);
-
-  closeModal();
-};
-
-window.viewShift = function(date, shift, key) {
-  selectedDay = date;
-  // use the actual key that exists in Firebase (unpadded or padded)
-  selectedDateKey = key || getDateKey(date);
-  currentShiftId = shift.id;
-
-  document.getElementById('viewShiftDate').textContent = date.toLocaleDateString();
-
-  const details = document.getElementById('shiftDetails');
-  details.innerHTML = `
-    <div style="margin-bottom: 15px;">
-      <strong>Unit:</strong> ${shift.unit}<br>
-      <strong>Shift Type:</strong> ${shift.shiftType && shift.shiftType !== 'Not specified' ? getShiftTypeDisplay(shift.shiftType) : 'Not specified'}<br>
-      <strong>Assignment:</strong> ${shift.assignment && shift.assignment !== 'Not specified' ? shift.assignment : 'Not specified'}<br>
-      <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
-      <strong>Special Treatments:</strong> ${shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None'}<br>
-      ${shift.comments ? `<strong>Comments:</strong><br>${shift.comments.replace(/\n/g, '<br>')}` : ''}
-    </div>
-  `;
-
-  document.getElementById('viewShiftModal').classList.add('active');
-};
-
-window.closeViewModal = function(preserveState = false) {
-  document.getElementById('viewShiftModal').classList.remove('active');
-  if (!preserveState) {
-    selectedDay = null;
-    selectedDateKey = null;
-    currentShiftId = null;
-  }
-};
-
-window.editShift = function() {
-  const shift = shiftData[selectedDateKey];
-  if (!shift) return;
-
-  isEditing = true;
-  currentShiftId = shift.id || currentShiftId; // preserve existing id
-
-  // Hide the view modal but keep selectedDay/selectedDateKey intact
-  if (typeof closeViewModal === 'function') closeViewModal(true);
-  const v = document.getElementById('viewShiftModal');
-  if (v) v.classList.remove('active');
-
-  // Fill the form with existing values
-  document.getElementById('selectedDate').textContent = selectedDay.toLocaleDateString();
-  document.getElementById('unit').value = shift.unit || '';
-  document.getElementById('shiftType').value = shift.shiftType || '';
-  document.getElementById('assignment').value = shift.assignment || '';
-  document.getElementById('isolation').value = shift.isolation || '';
-  document.getElementById('comments').value = shift.comments || '';
-
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-    cb.checked = Array.isArray(shift.treatments) && shift.treatments.includes(cb.value);
-  });
-
-  const primaryBtn = document.getElementById('primaryActionBtn');
-  primaryBtn.replaceWith(primaryBtn.cloneNode(true));
-  const freshBtn = document.getElementById('primaryActionBtn');
-  document.getElementById('modalTitle').textContent = 'Edit Shift';
-  freshBtn.textContent = 'Save Changes';
-  freshBtn.onclick = updateShift;
-
-  document.getElementById('shiftModal').classList.add('active');
-};
-
-        window.deleteShift = async function() {
-            if (!confirm('Are you sure you want to delete this shift?')) return;
-            
-            try {
-                const shiftRef = ref(database, `nursing-shifts/${selectedDateKey}`);
-                await remove(shiftRef);
-                closeViewModal();
-            } catch (error) {
-                console.error('Error deleting shift:', error);
-                alert('Failed to delete shift: ' + error.message);
+        window.closeViewModal = function(preserveState = false) {
+            document.getElementById('viewShiftModal').classList.remove('active');
+            if (!preserveState) {
+                selectedDay = null;
+                selectedDateKey = null;
+                currentShiftId = null;
             }
         };
 
+        window.editShift = function() {
+            const shift = shiftData[selectedDateKey];
+            if (!shift) return;
+
+            isEditing = true;
+            currentShiftId = shift.id || currentShiftId;
+
+            const v = document.getElementById('viewShiftModal');
+            if (v) v.classList.remove('active');
+
+            document.getElementById('selectedDate').textContent = selectedDay.toLocaleDateString();
+            document.getElementById('unit').value = shift.unit || '';
+            document.getElementById('shiftType').value = shift.shiftType || '';
+            document.getElementById('assignment').value = shift.assignment || '';
+            document.getElementById('isolation').value = shift.isolation || '';
+            document.getElementById('comments').value = shift.comments || '';
+
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                cb.checked = Array.isArray(shift.treatments) && shift.treatments.includes(cb.value);
+            });
+
+            const primaryBtn = document.getElementById('primaryActionBtn');
+            primaryBtn.replaceWith(primaryBtn.cloneNode(true));
+            const freshBtn = document.getElementById('primaryActionBtn');
+            document.getElementById('modalTitle').textContent = 'Edit Shift';
+            freshBtn.textContent = 'Save Changes';
+            freshBtn.onclick = updateShift;
+
+            try { applyShiftTypeConstraints(); } catch(e) {}
+            document.getElementById('shiftModal').classList.add('active');
+        };
+
+        // Notes system
+        window.openNotesModal = function () {
+            loadNotes();
+            updateRVAndBankFigures();
+            document.getElementById('notesModal').classList.add('active');
+        };
+
+        window.closeNotesModal = function () {
+            document.getElementById('notesModal').classList.remove('active');
+        };
+
+        function loadNotes() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
+                notesData = { ...notesData, ...saved };
+
+                const payNotesEl = document.getElementById('payNotes');
+                const bankEl = document.getElementById('vacationBank');
+                if (payNotesEl) payNotesEl.value = notesData.payNotes || "";
+                if (bankEl) bankEl.value = notesData.vacationBank || 0;
+
+                renderOtMentorTable();
+            } catch {
+                // ignore
+            }
+        }
+
+        window.saveNotes = function () {
+            notesData.payNotes = (document.getElementById('payNotes')?.value || "");
+            notesData.vacationBank = parseFloat(document.getElementById('vacationBank')?.value) || 0;
+            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+            updateRVAndBankFigures();
+            closeNotesModal();
+        };
+
+        function renderOtMentorTable() {
+            const tbody = document.querySelector("#otMentorTable tbody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            notesData.otMentor.forEach((e, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${e.date || ''}</td>
+                    <td>${e.type || ''}</td>
+                    <td>${(Number(e.hours) || 0).toFixed(2)}</td>
+                    <td style="text-align:right;">
+                        <button class="modal-btn danger" onclick="deleteOtMentorEntry(${idx})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.addOtMentorEntry = function () {
+            const date = prompt("Enter date (YYYY-MM-DD):") || "";
+            const type = prompt("Enter type (OT/Mentor):") || "";
+            const hours = parseFloat(prompt("Enter hours:")) || 0;
+            notesData.otMentor.push({ date, type, hours });
+            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+            renderOtMentorTable();
+        };
+
+        window.deleteOtMentorEntry = function (idx) {
+            notesData.otMentor.splice(idx, 1);
+            localStorage.setItem('nursing-notes', JSON.stringify(notesData));
+            renderOtMentorTable();
+        };
+
+        function updateRVAndBankFigures() {
+            const year = new Date().getFullYear();
+            let rvCount = 0;
+
+            Object.keys(shiftData || {}).forEach(dateKey => {
+                const s = shiftData[dateKey];
+                if (!s) return;
+                const y = parseInt(String(dateKey).split('-')[0], 10);
+                if (s.shiftType === 'RV' && y === year) rvCount++;
+            });
+
+            const rvHours = rvCount * 11.25;
+            const bank = Number(notesData.vacationBank || 0);
+            const remaining = bank - rvHours;
+
+            const rvCountEl = document.getElementById('rvCount');
+            const rvHoursEl = document.getElementById('rvHours');
+            const remEl = document.getElementById('vacationRemaining');
+
+            if (rvCountEl) rvCountEl.textContent = String(rvCount);
+            if (rvHoursEl) rvHoursEl.textContent = rvHours.toFixed(2);
+            if (remEl) remEl.textContent = remaining.toFixed(2);
+        }
+
+        // Pay settings system
+        window.openSettingsModal = function() {
+            loadPaySettings();
+            document.getElementById('settingsModal').classList.add('active');
+        };
+
+        window.closeSettingsModal = function() {
+            document.getElementById('settingsModal').classList.remove('active');
+        };
+
+        function loadPaySettings() {
+            try {
+                const saved = JSON.parse(window.localStorage.getItem('nursing-pay-settings') || '{}');
+                paySettings = saved || {};
+
+                const setVal = (id, v) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = (v ?? '');
+                };
+
+                setVal('baseRate', saved.baseRate);
+                setVal('eveningPremium', saved.eveningPremium);
+                setVal('nightPremium', saved.nightPremium);
+                setVal('weekendPremium', saved.weekendPremium);
+                setVal('manualOvertimeHours', saved.manualOvertimeHours);
+                setVal('overtimeMultiplier', saved.overtimeMultiplier ?? 1.5);
+            } catch (error) {
+                console.error('Error loading pay settings from localStorage:', error);
+                paySettings = {};
+            }
+        }
+
+        window.saveSettings = function() {
+            const settings = {
+                baseRate: parseFloat(document.getElementById('baseRate')?.value) || 0,
+                eveningPremium: parseFloat(document.getElementById('eveningPremium')?.value) || 0,
+                nightPremium: parseFloat(document.getElementById('nightPremium')?.value) || 0,
+                weekendPremium: parseFloat(document.getElementById('weekendPremium')?.value) || 0,
+                manualOvertimeHours: parseFloat(document.getElementById('manualOvertimeHours')?.value) || 0,
+                overtimeMultiplier: parseFloat(document.getElementById('overtimeMultiplier')?.value) || 1.5
+            };
+
+            if (settings.baseRate === 0) {
+                alert('Please enter a base hourly rate');
+                return;
+            }
+
+            try {
+                window.localStorage.setItem('nursing-pay-settings', JSON.stringify(settings));
+                paySettings = settings;
+                closeSettingsModal();
+                alert('Settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving settings to localStorage:', error);
+                alert('Failed to save settings: ' + error.message);
+            }
+        };
+
+        function initializePaySettings() {
+            loadPaySettings();
+        }
+
+        // Pay calculation system
+        window.openPayPeriodModal = function() {
+            loadPaySettings();
+            setCurrentBiWeekly();
+            document.getElementById('payPeriodModal').classList.add('active');
+        };
+
+        window.closePayPeriodModal = function() {
+            document.getElementById('payPeriodModal').classList.remove('active');
+        };
+
+        window.setCurrentBiWeekly = function() {
+            const today = new Date();
+            const start = getPayPeriodStart(today);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 13);
+            
+            document.getElementById('payPeriodStart').value = formatDateForInput(start);
+            document.getElementById('payPeriodEnd').value = formatDateForInput(end);
+        };
+
+        window.setPreviousBiWeekly = function() {
+            const current = document.getElementById('payPeriodStart').value ? parseLocalInputDate(document.getElementById('payPeriodStart').value) : new Date();
+            current.setDate(current.getDate() - 14);
+            const start = getPayPeriodStart(current);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 13);
+            
+            document.getElementById('payPeriodStart').value = formatDateForInput(start);
+            document.getElementById('payPeriodEnd').value = formatDateForInput(end);
+        };
+
+        window.setNextBiWeekly = function() {
+            const current = document.getElementById('payPeriodEnd').value ? parseLocalInputDate(document.getElementById('payPeriodEnd').value) : new Date();
+            current.setDate(current.getDate() + 1);
+            const start = getPayPeriodStart(current);
+            const end = new Date(start);
+            end.setDate(start.getDate() + 13);
+            
+            document.getElementById('payPeriodStart').value = formatDateForInput(start);
+            document.getElementById('payPeriodEnd').value = formatDateForInput(end);
+        };
+
+        function getPayPeriodStart(date) {
+            const start = new Date(date);
+            const dayOfWeek = start.getDay();
+            start.setDate(start.getDate() - dayOfWeek);
+            
+            const reference = new Date(2024, 0, 7);
+            const daysDiff = Math.floor((start - reference) / (1000 * 60 * 60 * 24));
+            const periodsDiff = Math.floor(daysDiff / 14);
+            
+            reference.setDate(reference.getDate() + (periodsDiff * 14));
+            return reference;
+        }
+
+        function formatDateForInput(date) { return formatDateForInputLocal(date); }
+
+        window.calculatePay = function() {
+            const startDate = document.getElementById('payPeriodStart').value;
+            const endDate = document.getElementById('payPeriodEnd').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            if (Object.keys(paySettings).length === 0 || paySettings.baseRate === 0) {
+                alert('Please configure your pay settings first');
+                return;
+            }
+
+            currentPayPeriod = {
+                start: parseLocalInputDate(startDate), end: parseLocalInputDate(endDate)
+            };
+
+            const payData = calculatePayForPeriod(currentPayPeriod.start, currentPayPeriod.end);
+            displayPayResults(payData);
+            
+            closePayPeriodModal();
+            document.getElementById('payResultsModal').classList.add('active');
+        };
+
+        function calculatePayForPeriod(startDate, endDate) {
+            const payData = {
+                period: { start: startDate, end: endDate },
+                shifts: [],
+                totals: {
+                    totalHours: 0,
+                    regularHours: 0,
+                    overtimeHours: 0,
+                    basePay: 0,
+                    eveningPremium: 0,
+                    nightPremium: 0,
+                    weekendPremium: 0,
+                    overtimePay: 0,
+                    totalPay: 0
+                }
+            };
+
+            Object.keys(shiftData).forEach(dateKey => {
+                const shiftDate = parseLocalDateKey(dateKey);
+                
+                if (shiftDate >= startDate && shiftDate <= endDate) {
+                    const shift = shiftData[dateKey];
+                    if (shift) {
+                        const shiftPay = calculateShiftPay(shiftDate, shift);
+                        payData.shifts.push({
+                            shiftDate: shiftDate,
+                            ...shift,
+                            ...shiftPay
+                        });
+                        
+                        payData.totals.totalHours += shiftPay.hours;
+                        payData.totals.basePay += shiftPay.basePay;
+                        payData.totals.eveningPremium += shiftPay.eveningPremium;
+                        payData.totals.nightPremium += shiftPay.nightPremium;
+                        payData.totals.weekendPremium += shiftPay.weekendPremium;
+                    }
+                }
+            });
+
+            payData.totals.overtimeHours = paySettings.manualOvertimeHours;
+            payData.totals.regularHours = payData.totals.totalHours;
+            payData.totals.overtimePay = paySettings.manualOvertimeHours * paySettings.baseRate * (paySettings.overtimeMultiplier - 1);
+
+            payData.totals.totalPay = payData.totals.basePay + 
+                                     payData.totals.eveningPremium + 
+                                     payData.totals.nightPremium + 
+                                     payData.totals.weekendPremium + 
+                                     payData.totals.overtimePay;
+
+            return payData;
+        }
+
+        function calculateShiftPay(date, shift) {
+            let hours = 11.25;
+            if (shift.shiftType === 'V') hours = 7.5;
+            else if (shift.shiftType === 'RV') hours = 11.25;
+            
+            const dayOfWeek = date.getDay();
+            
+            let basePay = hours * paySettings.baseRate;
+            let eveningPremium = 0;
+            let nightPremium = 0;
+            let weekendPremium = 0;
+            let premiums = [];
+
+            if (shift.shiftType === 'D') {
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    eveningPremium = 3.75 * paySettings.eveningPremium;
+                    premiums.push('Evening');
+                } else if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    weekendPremium = 11.25 * paySettings.weekendPremium;
+                    eveningPremium = 3.75 * paySettings.eveningPremium
+                    premiums.push('Weekend','Evening');
+                }
+            } else if (shift.shiftType === 'N') {
+                if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+                    eveningPremium = 3.75 * paySettings.eveningPremium;
+                    nightPremium = 7.5 * paySettings.nightPremium;
+                    premiums.push('Evening', 'Night');
+                } else if (dayOfWeek === 5) {
+                    weekendPremium = 7 * paySettings.weekendPremium;
+                    eveningPremium = 3.75 * paySettings.eveningPremium;
+                    nightPremium = 7.5 * paySettings.nightPremium;
+                    premiums.push('Weekend','Evening', 'Night');
+                } else if (dayOfWeek === 6) {
+                    weekendPremium = 11.25 * paySettings.weekendPremium;
+                    eveningPremium = 3.75 * paySettings.eveningPremium;
+                    nightPremium = 7.5 * paySettings.nightPremium;
+                    premiums.push('Weekend','Evening', 'Night');
+                } else if (dayOfWeek === 0) {
+                    weekendPremium = 4.5 * paySettings.weekendPremium;
+                    eveningPremium = 3.75 * paySettings.eveningPremium;
+                    nightPremium = 7.5 * paySettings.nightPremium;
+                    premiums.push('Weekend','Evening', 'Night');
+                }
+            }
+
+            return {
+                hours,
+                basePay,
+                eveningPremium,
+                nightPremium,
+                weekendPremium,
+                premiums,
+                totalPay: basePay + eveningPremium + nightPremium + weekendPremium
+            };
+        }
+
+        function displayPayResults(payData) {
+            const periodText = `${payData.period.start.toLocaleDateString()} - ${payData.period.end.toLocaleDateString()}`;
+            document.getElementById('payResultsPeriod').textContent = periodText;
+
+            let html = `
+                <div class="pay-summary">
+                    <div class="pay-summary-grid">
+                        <div class="pay-summary-item">
+                            <div class="pay-summary-value">$${payData.totals.totalPay.toFixed(2)}</div>
+                            <div class="pay-summary-label">Total Pay</div>
+                        </div>
+                        <div class="pay-summary-item">
+                            <div class="pay-summary-value">${payData.totals.totalHours.toFixed(2)}</div>
+                            <div class="pay-summary-label">Total Hours</div>
+                        </div>
+                        <div class="pay-summary-item">
+                            <div class="pay-summary-value">${payData.shifts.length}</div>
+                            <div class="pay-summary-label">Total Shifts</div>
+                        </div>
+                        ${payData.totals.overtimeHours > 0 ? `
+                        <div class="pay-summary-item">
+                            <div class="pay-summary-value">${payData.totals.overtimeHours.toFixed(2)}</div>
+                            <div class="pay-summary-label">Overtime Hours</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+
+                <h4>Shift-by-Shift Breakdown:</h4>
+                <table class="pay-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Unit</th>
+                            <th>Type</th>
+                            <th>Hours</th>
+                            <th>Base Pay</th>
+                            <th>Premiums</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            payData.shifts.forEach(shift => {
+                const premiumDetails = [];
+                if (shift.eveningPremium > 0) premiumDetails.push(`Evening: $${shift.eveningPremium.toFixed(2)}`);
+                if (shift.nightPremium > 0) premiumDetails.push(`Night: $${shift.nightPremium.toFixed(2)}`);
+                if (shift.weekendPremium > 0) premiumDetails.push(`Weekend: $${shift.weekendPremium.toFixed(2)}`);
+
+                html += `
+                    <tr>
+                        <td>${shift.shiftDate.toLocaleDateString()}</td>
+                        <td>${shift.unit}</td>
+                        <td>
+                            ${getShiftTypeDisplay(shift.shiftType)}
+                            ${shift.premiums.map(p => `<span class="premium-tag ${p.toLowerCase()}">${p}</span>`).join('')}
+                        </td>
+                        <td>${shift.hours.toFixed(2)}</td>
+                        <td class="currency">${shift.basePay.toFixed(2)}</td>
+                        <td class="currency">
+                            ${premiumDetails.length > 0 ? premiumDetails.join('<br>') : '-'}
+                        </td>
+                        <td class="currency">${shift.totalPay.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+
+                <h4>Pay Summary:</h4>
+                <table class="pay-table">
+                    <tbody>
+                        <tr>
+                            <td><strong>Regular Hours (${payData.totals.regularHours.toFixed(2)})</strong></td>
+                            <td class="currency"><strong>$${payData.totals.basePay.toFixed(2)}</strong></td>
+                        </tr>
+                        ${payData.totals.eveningPremium > 0 ? `
+                        <tr>
+                            <td>Evening Premium</td>
+                            <td class="currency">$${payData.totals.eveningPremium.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        ${payData.totals.nightPremium > 0 ? `
+                        <tr>
+                            <td>Night Premium</td>
+                            <td class="currency">$${payData.totals.nightPremium.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        ${payData.totals.weekendPremium > 0 ? `
+                        <tr>
+                            <td>Weekend Premium</td>
+                            <td class="currency">$${payData.totals.weekendPremium.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        ${payData.totals.overtimeHours > 0 ? `
+                        <tr>
+                            <td>Overtime (manual: ${payData.totals.overtimeHours.toFixed(2)}h at ${paySettings.overtimeMultiplier}x)</td>
+                            <td class="currency">$${payData.totals.overtimePay.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        <tr class="total-row">
+                            <td><strong>TOTAL PAY</strong></td>
+                            <td class="currency"><strong>$${payData.totals.totalPay.toFixed(2)}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('payResultsContent').innerHTML = html;
+        }
+
+        window.closePayResultsModal = function() {
+            document.getElementById('payResultsModal').classList.remove('active');
+        };
+
+        window.exportPayCSV = function() {
+            if (!currentPayPeriod.start || !currentPayPeriod.end) {
+                alert('No pay calculation to export');
+                return;
+            }
+
+            const payData = calculatePayForPeriod(currentPayPeriod.start, currentPayPeriod.end);
+            const csvData = [];
+            
+            csvData.push(['PAY CALCULATION REPORT']);
+            csvData.push(['Period', `${payData.period.start.toLocaleDateString()} - ${payData.period.end.toLocaleDateString()}`]);
+            csvData.push(['']);
+            
+            csvData.push(['PAY SETTINGS USED']);
+            csvData.push(['Base Rate', `$${paySettings.baseRate.toFixed(2)}`]);
+            csvData.push(['Evening Premium', `$${paySettings.eveningPremium.toFixed(2)}`]);
+            csvData.push(['Night Premium', `$${paySettings.nightPremium.toFixed(2)}`]);
+            csvData.push(['Weekend Premium', `$${paySettings.weekendPremium.toFixed(2)}`]);
+            csvData.push(['Manual Overtime Hours', `${Number(paySettings.manualOvertimeHours || 0).toFixed(2)} hours`]);
+            csvData.push(['Overtime Multiplier', `${paySettings.overtimeMultiplier}x`]);
+            csvData.push(['']);
+
+            csvData.push(['SHIFT BREAKDOWN']);
+            csvData.push(['Date', 'Unit', 'Shift Type', 'Hours', 'Base Pay', 'Evening Premium', 'Night Premium', 'Weekend Premium', 'Shift Total']);
+            
+            payData.shifts.forEach(shift => {
+                csvData.push([
+                    shift.shiftDate.toLocaleDateString(),
+                    shift.unit,
+                    getShiftTypeDisplay(shift.shiftType),
+                    shift.hours.toFixed(2),
+                    `${shift.basePay.toFixed(2)}`,
+                    `${shift.eveningPremium.toFixed(2)}`,
+                    `${shift.nightPremium.toFixed(2)}`,
+                    `${shift.weekendPremium.toFixed(2)}`,
+                    `${shift.totalPay.toFixed(2)}`
+                ]);
+            });
+
+            csvData.push(['']);
+            csvData.push(['SUMMARY']);
+            csvData.push(['Total Hours', payData.totals.totalHours.toFixed(2)]);
+            csvData.push(['Regular Hours', payData.totals.regularHours.toFixed(2)]);
+            csvData.push(['Overtime Hours', payData.totals.overtimeHours.toFixed(2)]);
+            csvData.push(['Base Pay', `$${payData.totals.basePay.toFixed(2)}`]);
+            csvData.push(['Evening Premium Total', `$${payData.totals.eveningPremium.toFixed(2)}`]);
+            csvData.push(['Night Premium Total', `$${payData.totals.nightPremium.toFixed(2)}`]);
+            csvData.push(['Weekend Premium Total', `$${payData.totals.weekendPremium.toFixed(2)}`]);
+            csvData.push(['Overtime Pay', `$${payData.totals.overtimePay.toFixed(2)}`]);
+            csvData.push(['TOTAL PAY', `$${payData.totals.totalPay.toFixed(2)}`]);
+
+            const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `pay-calculation-${currentPayPeriod.start.toISOString().split('T')[0]}-to-${currentPayPeriod.end.toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        };
+
         function updateStats() {
+            let _rvRemainingForStats = (() => {
+                try {
+                    const year = new Date().getFullYear();
+                    let rvCount = 0;
+                    Object.keys(shiftData || {}).forEach(k => {
+                        const s = shiftData[k];
+                        if (!s) return;
+                        const y = parseInt(String(k).split('-')[0], 10);
+                        if (s.shiftType === 'RV' && y === year) rvCount++;
+                    });
+                    const notes = JSON.parse(localStorage.getItem('nursing-notes') || '{}');
+                    const bank = Number(notes && notes.vacationBank ? notes.vacationBank : 0);
+                    return bank - (rvCount * 11.25);
+                } catch(e) { return 0; }
+            })();
+
             const statsGrid = document.getElementById('statsGrid');
             const currentYear = new Date().getFullYear();
             document.getElementById('currentYear').textContent = currentYear;
@@ -1343,16 +2297,14 @@ window.editShift = function() {
                     if (shift) {
                         totalShifts++;
                         
-                        // Calculate hours based on shift type
                         if (shift.shiftType === 'RV') {
-                            totalHours += 11.25; // Requested vacation = 11.25 hours
+                            totalHours += 11.25;
                         } else if (shift.shiftType === 'V') {
-                            totalHours += 7.5;   // Vacation = 7.5 hours
+                            totalHours += 7.5;
                         } else {
-                            totalHours += 11.25; // All other shifts = 11.25 hours
+                            totalHours += 11.25;
                         }
                         
-                        // Count shift types
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
@@ -1365,14 +2317,12 @@ window.editShift = function() {
                             requestedVacations++;
                         }
                         
-                        // Count assignments
                         if (shift.assignment === 'Double') {
                             doubleAssignments++;
                         } else if (shift.assignment === 'Single') {
                             singleAssignments++;
                         }
                         
-                        // Count isolations
                         if (shift.isolation === 'None') {
                             noIsolation++;
                         } else if (shift.isolation === '1') {
@@ -1381,7 +2331,6 @@ window.editShift = function() {
                             twoIsolations++;
                         }
                         
-                        // Count unit types
                         if (['TGPACU', 'TWPACU'].includes(shift.unit)) {
                             pacuShifts++;
                         }
@@ -1409,6 +2358,7 @@ window.editShift = function() {
                 { label: 'Sick Calls', value: sickCalls },
                 { label: 'Vacations', value: `${vacations} (${(vacations * 7.5).toFixed(1)}h)` },
                 { label: 'Requested Vacations', value: `${requestedVacations} (${(requestedVacations * 11.25).toFixed(1)}h)` },
+                { label: 'Remaining Vacation Hours', value: (typeof _rvRemainingForStats !== 'undefined' ? _rvRemainingForStats.toFixed(2) : '0.00') },
                 { label: 'Double Assignments', value: `${doubleAssignments} (${doubleAssignmentPercent}%)` },
                 { label: 'Single Assignments', value: `${singleAssignments} (${singleAssignmentPercent}%)` },
                 { label: 'No Isolation', value: `${noIsolation} (${noIsolationPercent}%)` },
@@ -1433,20 +2383,18 @@ window.editShift = function() {
             const currentYear = new Date().getFullYear();
             const csvData = [];
             
-            // Add header for shift data
             csvData.push(['SHIFT DATA']);
             csvData.push(['Date', 'Unit', 'Shift Type', 'Assignment', 'Isolation', 'Special Treatments', 'Comments', 'Hours']);
 
-            // Add shift data
             Object.keys(shiftData).forEach(dateKey => {
                 const shift = shiftData[dateKey];
-                const date = new Date(dateKey).toLocaleDateString();
+                const date = parseLocalDateKey(dateKey).toLocaleDateString();
                 
-                let hours = 11.25; // Default hours
+                let hours = 11.25;
                 if (shift.shiftType === 'V') {
-                    hours = 7.5;   // Vacation = 7.5 hours
+                    hours = 7.5;
                 } else if (shift.shiftType === 'RV') {
-                    hours = 11.25; // Requested vacation = 11.25 hours
+                    hours = 11.25;
                 }
                 
                 csvData.push([
@@ -1461,7 +2409,6 @@ window.editShift = function() {
                 ]);
             });
 
-            // Calculate statistics
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
@@ -1484,7 +2431,6 @@ window.editShift = function() {
                     if (shift) {
                         totalShifts++;
                         
-                        // Calculate hours based on shift type
                         if (shift.shiftType === 'RV') {
                             totalHours += 11.25;
                         } else if (shift.shiftType === 'V') {
@@ -1493,7 +2439,6 @@ window.editShift = function() {
                             totalHours += 11.25;
                         }
                         
-                        // Count shift types
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
@@ -1539,7 +2484,6 @@ window.editShift = function() {
             const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
             const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
 
-            // Add statistics to CSV
             csvData.push(['']);
             csvData.push(['']);
             csvData.push([`ANNUAL STATISTICS (${currentYear})`]);
@@ -1572,7 +2516,6 @@ window.editShift = function() {
         window.exportToJSON = function() {
             const currentYear = new Date().getFullYear();
             
-            // Calculate statistics
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
@@ -1595,7 +2538,6 @@ window.editShift = function() {
                     if (shift) {
                         totalShifts++;
                         
-                        // Calculate hours based on shift type
                         if (shift.shiftType === 'RV') {
                             totalHours += 11.25;
                         } else if (shift.shiftType === 'V') {
@@ -1604,7 +2546,6 @@ window.editShift = function() {
                             totalHours += 11.25;
                         }
                         
-                        // Count shift types
                         if (shift.shiftType === 'D') {
                             dayShifts++;
                         } else if (shift.shiftType === 'N') {
@@ -1691,6 +2632,11 @@ window.editShift = function() {
         };
 
         // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const st = document.getElementById('shiftType');
+            if (st) st.addEventListener('change', window.applyShiftTypeConstraints);
+        });
+
         document.getElementById('shiftModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal();
@@ -1703,8 +2649,42 @@ window.editShift = function() {
             }
         });
 
-        // Firebase will be initialized after password verification
-        // initFirebase() is now called from checkPassword() function
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettingsModal();
+            }
+        });
+
+        document.getElementById('payPeriodModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePayPeriodModal();
+            }
+        });
+
+        document.getElementById('payResultsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePayResultsModal();
+            }
+        });
+
+        document.getElementById('notesModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeNotesModal();
+            }
+        });
+
+        // Auto-calculate end date when start date changes
+        document.getElementById('payPeriodStart').addEventListener('change', function(e) {
+            if (e.target.value) {
+                const startDate = new Date(e.target.value);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 13);
+                document.getElementById('payPeriodEnd').value = formatDateForInput(endDate);
+            }
+        });
+
+        // Login button event
+        document.getElementById('loginBtn').addEventListener('click', signInWithGoogle);
 
     </script>
 </body>
