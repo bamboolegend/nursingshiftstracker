@@ -2638,13 +2638,14 @@
                 }
             });
 
-            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
-            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
-            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
-            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
-            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
-            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
-            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
+const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
+const singleAssignmentPercent = workShifts > 0 ? Math.round((singleAssignments / workShifts) * 100) : 0;
+const noIsolationPercent = workShifts > 0 ? Math.round((noIsolation / workShifts) * 100) : 0;
+const oneIsolationPercent = workShifts > 0 ? Math.round((oneIsolation / workShifts) * 100) : 0;
+const twoIsolationPercent = workShifts > 0 ? Math.round((twoIsolations / workShifts) * 100) : 0;
+const pacuPercent = workShifts > 0 ? Math.round((pacuShifts / workShifts) * 100) : 0;
+const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 100) : 0;
 
             const stats = [
                 { label: 'Total Shifts', value: totalShifts },
@@ -2779,13 +2780,14 @@
                 }
             });
 
-            const doubleAssignmentPercent = totalShifts > 0 ? Math.round((doubleAssignments / totalShifts) * 100) : 0;
-            const singleAssignmentPercent = totalShifts > 0 ? Math.round((singleAssignments / totalShifts) * 100) : 0;
-            const noIsolationPercent = totalShifts > 0 ? Math.round((noIsolation / totalShifts) * 100) : 0;
-            const oneIsolationPercent = totalShifts > 0 ? Math.round((oneIsolation / totalShifts) * 100) : 0;
-            const twoIsolationPercent = totalShifts > 0 ? Math.round((twoIsolations / totalShifts) * 100) : 0;
-            const pacuPercent = totalShifts > 0 ? Math.round((pacuShifts / totalShifts) * 100) : 0;
-            const floorPercent = totalShifts > 0 ? Math.round((floorShifts / totalShifts) * 100) : 0;
+	    const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
+	    const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
+            const singleAssignmentPercent = workShifts > 0 ? Math.round((singleAssignments / workShifts) * 100) : 0;
+            const noIsolationPercent = workShifts > 0 ? Math.round((noIsolation / workShifts) * 100) : 0;
+            const oneIsolationPercent = workShifts > 0 ? Math.round((oneIsolation / workShifts) * 100) : 0;
+            const twoIsolationPercent = workShifts > 0 ? Math.round((twoIsolations / workShifts) * 100) : 0;
+            const pacuPercent = workShifts > 0 ? Math.round((pacuShifts / workShifts) * 100) : 0;
+            const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 100) : 0;
 
             csvData.push(['']);
             csvData.push(['']);
