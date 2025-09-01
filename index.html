@@ -2160,27 +2160,54 @@
             document.getElementById('payPeriodEnd').value = formatDateForInput(end);
         };
 
-        window.setPreviousBiWeekly = function() {
-            const current = document.getElementById('payPeriodStart').value ? parseLocalInputDate(document.getElementById('payPeriodStart').value) : new Date();
-            current.setDate(current.getDate() - 14);
-            const start = getPayPeriodStart(current);
-            const end = new Date(start);
-            end.setDate(start.getDate() + 13);
-            
-            document.getElementById('payPeriodStart').value = formatDateForInput(start);
-            document.getElementById('payPeriodEnd').value = formatDateForInput(end);
-        };
+window.setPreviousBiWeekly = function() {
+    // Get the current start date from the form
+    const currentStartInput = document.getElementById('payPeriodStart').value;
+    let currentStart;
+    
+    if (currentStartInput) {
+        currentStart = parseLocalInputDate(currentStartInput);
+    } else {
+        // If no date is set, use today's period start
+        currentStart = getPayPeriodStart(new Date());
+    }
+    
+    // Go back exactly 14 days for the previous period
+    const previousStart = new Date(currentStart);
+    previousStart.setDate(currentStart.getDate() - 14);
+    
+    const previousEnd = new Date(previousStart);
+    previousEnd.setDate(previousStart.getDate() + 13);
+    
+    document.getElementById('payPeriodStart').value = formatDateForInput(previousStart);
+    document.getElementById('payPeriodEnd').value = formatDateForInput(previousEnd);
+};
 
-        window.setNextBiWeekly = function() {
-            const current = document.getElementById('payPeriodEnd').value ? parseLocalInputDate(document.getElementById('payPeriodEnd').value) : new Date();
-            current.setDate(current.getDate() + 1);
-            const start = getPayPeriodStart(current);
-            const end = new Date(start);
-            end.setDate(start.getDate() + 13);
-            
-            document.getElementById('payPeriodStart').value = formatDateForInput(start);
-            document.getElementById('payPeriodEnd').value = formatDateForInput(end);
-        };
+
+// FIXED Next Period - simple addition
+window.setNextBiWeekly = function() {
+    // Get the current start date from the form
+    const currentStartInput = document.getElementById('payPeriodStart').value;
+    let currentStart;
+    
+    if (currentStartInput) {
+        currentStart = parseLocalInputDate(currentStartInput);
+    } else {
+        // If no date is set, use today's period start
+        currentStart = getPayPeriodStart(new Date());
+    }
+    
+    // Go forward exactly 14 days for the next period
+    const nextStart = new Date(currentStart);
+    nextStart.setDate(currentStart.getDate() + 14);
+    
+    const nextEnd = new Date(nextStart);
+    nextEnd.setDate(nextStart.getDate() + 13);
+    
+    document.getElementById('payPeriodStart').value = formatDateForInput(nextStart);
+    document.getElementById('payPeriodEnd').value = formatDateForInput(nextEnd);
+};
+
 
         function getPayPeriodStart(date) {
             const start = new Date(date);
