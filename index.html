@@ -1579,10 +1579,13 @@
         }
 
         window.changeMonth = function(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
+            const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + direction, 1);
+            currentDate = newDate;
             window.currentDate = currentDate;
             renderCalendar();
         };
+
+
 
         function getDateKey(date) {
             const y = date.getFullYear();
