@@ -999,16 +999,16 @@
 
             <div class="form-group">
                 <label for="unit">Unit (required for Day/Night; optional otherwise)</label>
-                <select id="unit" required>
-                    <option value="">Select Unit</option>
-                    <option value="MSICU">MSICU</option>
-                    <option value="CVICU">CVICU</option>
-                    <option value="CCU">CCU</option>
-                    <option value="MSNICU">MSNICU</option>
-                    <option value="TGPACU">TGPACU</option>
-                    <option value="TWPACU">TWPACU</option>
-                    <option value="Floor">Floor</option>
-                </select>
+                <input type="text" id="unit" list="unitOptions" placeholder="Type or select a unit..." autocomplete="off">
+                <datalist id="unitOptions">
+                    <option value="MSICU">
+                    <option value="CVICU">
+                    <option value="CCU">
+                    <option value="MSNICU">
+                    <option value="TGPACU">
+                    <option value="TWPACU">
+                    <option value="Floor">
+                </datalist>
             </div>
 
             <div class="form-group">
@@ -1443,7 +1443,8 @@
                 return;
             }
 
-            const unit = document.getElementById('unit').value;
+            const unitField = document.getElementById('unit');
+            const unit = unitField ? unitField.value : '';
             const stVal = document.getElementById('shiftType').value || '';
             const requiresUnit = window.isWorkShift(stVal);
             const isNonWork = (stVal === 'V' || stVal === 'RV' || stVal === 'S');
@@ -1491,7 +1492,8 @@
                 return;
             }
 
-            const unit = document.getElementById('unit').value;
+            const unitField = document.getElementById('unit');
+            const unit = unitField ? unitField.value : '';
             const stVal = document.getElementById('shiftType').value || '';
             const requiresUnit = window.isWorkShift(stVal);
             const isNonWork = (stVal === 'V' || stVal === 'RV' || stVal === 'S');
@@ -1584,8 +1586,6 @@
             window.currentDate = currentDate;
             renderCalendar();
         };
-
-
 
         function getDateKey(date) {
             const y = date.getFullYear();
@@ -1814,13 +1814,29 @@
             selectedDateKey = getDateKey(date);
 
             document.getElementById('selectedDate').textContent = date.toLocaleDateString();
-            document.getElementById('unit').value = '';
-            document.getElementById('shiftType').value = '';
-            document.getElementById('assignment').value = '';
-            document.getElementById('isolation').value = '';
-            document.getElementById('comments').value = '';
-            document.getElementById('shiftHours').value = '';
-            document.getElementById('vacationHours').value = '';
+            
+            // Clear form fields with null checks
+            const unitField = document.getElementById('unit');
+            if (unitField) unitField.value = '';
+            
+            const shiftTypeField = document.getElementById('shiftType');
+            if (shiftTypeField) shiftTypeField.value = '';
+            
+            const assignmentField = document.getElementById('assignment');
+            if (assignmentField) assignmentField.value = '';
+            
+            const isolationField = document.getElementById('isolation');
+            if (isolationField) isolationField.value = '';
+            
+            const commentsField = document.getElementById('comments');
+            if (commentsField) commentsField.value = '';
+            
+            const shiftHoursField = document.getElementById('shiftHours');
+            if (shiftHoursField) shiftHoursField.value = '';
+            
+            const vacationHoursField = document.getElementById('vacationHours');
+            if (vacationHoursField) vacationHoursField.value = '';
+            
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
             const primaryBtn = document.getElementById('primaryActionBtn');
@@ -1843,6 +1859,11 @@
         };
 
         window.viewShift = function(date, shift, key) {
+            if (!shift) {
+                openModal(date);
+                return;
+            }
+
             selectedDay = date;
             selectedDateKey = key || getDateKey(date);
             currentShiftId = shift.id;
@@ -1900,13 +1921,28 @@
             if (v) v.classList.remove('active');
 
             document.getElementById('selectedDate').textContent = selectedDay.toLocaleDateString();
-            document.getElementById('unit').value = shift.unit || '';
-            document.getElementById('shiftType').value = shift.shiftType || '';
-            document.getElementById('assignment').value = shift.assignment || '';
-            document.getElementById('isolation').value = shift.isolation || '';
-            document.getElementById('comments').value = shift.comments || '';
-            document.getElementById('shiftHours').value = shift.shiftHours || '';
-            document.getElementById('vacationHours').value = shift.vacationHours || '';
+            
+            // Set form fields with null checks
+            const unitField = document.getElementById('unit');
+            if (unitField) unitField.value = shift.unit || '';
+            
+            const shiftTypeField = document.getElementById('shiftType');
+            if (shiftTypeField) shiftTypeField.value = shift.shiftType || '';
+            
+            const assignmentField = document.getElementById('assignment');
+            if (assignmentField) assignmentField.value = shift.assignment || '';
+            
+            const isolationField = document.getElementById('isolation');
+            if (isolationField) isolationField.value = shift.isolation || '';
+            
+            const commentsField = document.getElementById('comments');
+            if (commentsField) commentsField.value = shift.comments || '';
+            
+            const shiftHoursField = document.getElementById('shiftHours');
+            if (shiftHoursField) shiftHoursField.value = shift.shiftHours || '';
+            
+            const vacationHoursField = document.getElementById('vacationHours');
+            if (vacationHoursField) vacationHoursField.value = shift.vacationHours || '';
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.checked = Array.isArray(shift.treatments) && shift.treatments.includes(cb.value);
@@ -2163,53 +2199,53 @@
             document.getElementById('payPeriodEnd').value = formatDateForInput(end);
         };
 
-window.setPreviousBiWeekly = function() {
-    // Get the current start date from the form
-    const currentStartInput = document.getElementById('payPeriodStart').value;
-    let currentStart;
-    
-    if (currentStartInput) {
-        currentStart = parseLocalInputDate(currentStartInput);
-    } else {
-        // If no date is set, use today's period start
-        currentStart = getPayPeriodStart(new Date());
-    }
-    
-    // Go back exactly 14 days for the previous period
-    const previousStart = new Date(currentStart);
-    previousStart.setDate(currentStart.getDate() - 14);
-    
-    const previousEnd = new Date(previousStart);
-    previousEnd.setDate(previousStart.getDate() + 13);
-    
-    document.getElementById('payPeriodStart').value = formatDateForInput(previousStart);
-    document.getElementById('payPeriodEnd').value = formatDateForInput(previousEnd);
-};
+        window.setPreviousBiWeekly = function() {
+            // Get the current start date from the form
+            const currentStartInput = document.getElementById('payPeriodStart').value;
+            let currentStart;
+            
+            if (currentStartInput) {
+                currentStart = parseLocalInputDate(currentStartInput);
+            } else {
+                // If no date is set, use today's period start
+                currentStart = getPayPeriodStart(new Date());
+            }
+            
+            // Go back exactly 14 days for the previous period
+            const previousStart = new Date(currentStart);
+            previousStart.setDate(currentStart.getDate() - 14);
+            
+            const previousEnd = new Date(previousStart);
+            previousEnd.setDate(previousStart.getDate() + 13);
+            
+            document.getElementById('payPeriodStart').value = formatDateForInput(previousStart);
+            document.getElementById('payPeriodEnd').value = formatDateForInput(previousEnd);
+        };
 
 
-// FIXED Next Period - simple addition
-window.setNextBiWeekly = function() {
-    // Get the current start date from the form
-    const currentStartInput = document.getElementById('payPeriodStart').value;
-    let currentStart;
-    
-    if (currentStartInput) {
-        currentStart = parseLocalInputDate(currentStartInput);
-    } else {
-        // If no date is set, use today's period start
-        currentStart = getPayPeriodStart(new Date());
-    }
-    
-    // Go forward exactly 14 days for the next period
-    const nextStart = new Date(currentStart);
-    nextStart.setDate(currentStart.getDate() + 14);
-    
-    const nextEnd = new Date(nextStart);
-    nextEnd.setDate(nextStart.getDate() + 13);
-    
-    document.getElementById('payPeriodStart').value = formatDateForInput(nextStart);
-    document.getElementById('payPeriodEnd').value = formatDateForInput(nextEnd);
-};
+        // FIXED Next Period - simple addition
+        window.setNextBiWeekly = function() {
+            // Get the current start date from the form
+            const currentStartInput = document.getElementById('payPeriodStart').value;
+            let currentStart;
+            
+            if (currentStartInput) {
+                currentStart = parseLocalInputDate(currentStartInput);
+            } else {
+                // If no date is set, use today's period start
+                currentStart = getPayPeriodStart(new Date());
+            }
+            
+            // Go forward exactly 14 days for the next period
+            const nextStart = new Date(currentStart);
+            nextStart.setDate(currentStart.getDate() + 14);
+            
+            const nextEnd = new Date(nextStart);
+            nextEnd.setDate(nextStart.getDate() + 13);
+            
+            document.getElementById('payPeriodStart').value = formatDateForInput(nextStart);
+            document.getElementById('payPeriodEnd').value = formatDateForInput(nextEnd);
+        };
 
 
         function getPayPeriodStart(date) {
@@ -2668,14 +2704,14 @@ window.setNextBiWeekly = function() {
                 }
             });
 
-const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
-const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
-const singleAssignmentPercent = workShifts > 0 ? Math.round((singleAssignments / workShifts) * 100) : 0;
-const noIsolationPercent = workShifts > 0 ? Math.round((noIsolation / workShifts) * 100) : 0;
-const oneIsolationPercent = workShifts > 0 ? Math.round((oneIsolation / workShifts) * 100) : 0;
-const twoIsolationPercent = workShifts > 0 ? Math.round((twoIsolations / workShifts) * 100) : 0;
-const pacuPercent = workShifts > 0 ? Math.round((pacuShifts / workShifts) * 100) : 0;
-const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 100) : 0;
+            const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
+            const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
+            const singleAssignmentPercent = workShifts > 0 ? Math.round((singleAssignments / workShifts) * 100) : 0;
+            const noIsolationPercent = workShifts > 0 ? Math.round((noIsolation / workShifts) * 100) : 0;
+            const oneIsolationPercent = workShifts > 0 ? Math.round((oneIsolation / workShifts) * 100) : 0;
+            const twoIsolationPercent = workShifts > 0 ? Math.round((twoIsolations / workShifts) * 100) : 0;
+            const pacuPercent = workShifts > 0 ? Math.round((pacuShifts / workShifts) * 100) : 0;
+            const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 100) : 0;
 
             const stats = [
                 { label: 'Total Shifts', value: totalShifts },
@@ -2737,7 +2773,7 @@ const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 10
                 ]);
             });
 
-            // Update statistics calculation to include the new fields
+            // Add statistics
             let totalShifts = 0;
             let dayShifts = 0;
             let nightShifts = 0;
@@ -2810,8 +2846,8 @@ const floorPercent = workShifts > 0 ? Math.round((floorShifts / workShifts) * 10
                 }
             });
 
-	    const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
-	    const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
+            const workShifts = dayShifts + nightShifts; // Only count actual working shifts for percentages
+            const doubleAssignmentPercent = workShifts > 0 ? Math.round((doubleAssignments / workShifts) * 100) : 0;
             const singleAssignmentPercent = workShifts > 0 ? Math.round((singleAssignments / workShifts) * 100) : 0;
             const noIsolationPercent = workShifts > 0 ? Math.round((noIsolation / workShifts) * 100) : 0;
             const oneIsolationPercent = workShifts > 0 ? Math.round((oneIsolation / workShifts) * 100) : 0;
