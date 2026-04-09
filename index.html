@@ -1056,6 +1056,14 @@
             </div>
 
             <div class="form-group">
+                <label>
+                    <input type="checkbox" id="isHoliday">
+                    Holiday Shift (1.5x regular pay)
+                </label>
+                <div class="info-text">Mark this shift if it falls on a holiday. You'll receive 0.5x additional pay on top of regular shift pay.</div>
+            </div>
+
+            <div class="form-group">
                 <label for="comments">Comments</label>
                 <textarea id="comments" rows="3" placeholder="Any additional notes about this shift..."></textarea>
             </div>
@@ -1474,7 +1482,9 @@
                 createdAt: new Date().toISOString(),
                 // Add custom hours for "Other" shifts
                 shiftHours: shiftHours,
-                vacationHours: vacationHours
+                vacationHours: vacationHours,
+                // Add holiday flag
+                isHoliday: document.getElementById('isHoliday').checked || false
             };
 
             try {
@@ -1523,7 +1533,9 @@
                 updatedAt: new Date().toISOString(),
                 // Add custom hours for "Other" shifts
                 shiftHours: shiftHours,
-                vacationHours: vacationHours
+                vacationHours: vacationHours,
+                // Add holiday flag
+                isHoliday: document.getElementById('isHoliday').checked || false
             };
 
             try {
@@ -1758,6 +1770,16 @@
                         shiftInfo.appendChild(shiftTypeTag);
                     }
 
+                    // Holiday badge
+                    if (dayData.isHoliday) {
+                        const holidayTag = document.createElement('div');
+                        holidayTag.className = 'shift-tag holiday';
+                        holidayTag.style.background = 'linear-gradient(135deg, #f6ad55, #ed8936)';
+                        holidayTag.textContent = 'Holiday ✨';
+                        holidayTag.style.fontSize = '0.85em';
+                        shiftInfo.appendChild(holidayTag);
+                    }
+
                     if (dayData.unit && dayData.unit !== 'N/A') {
                         const unitTag = document.createElement('div');
                         unitTag.className = 'shift-tag';
@@ -1821,25 +1843,28 @@
             // Clear form fields with null checks
             const unitField = document.getElementById('unit');
             if (unitField) unitField.value = '';
-            
+
             const shiftTypeField = document.getElementById('shiftType');
             if (shiftTypeField) shiftTypeField.value = '';
-            
+
             const assignmentField = document.getElementById('assignment');
             if (assignmentField) assignmentField.value = '';
-            
+
             const isolationField = document.getElementById('isolation');
             if (isolationField) isolationField.value = '';
-            
+
             const commentsField = document.getElementById('comments');
             if (commentsField) commentsField.value = '';
-            
+
             const shiftHoursField = document.getElementById('shiftHours');
             if (shiftHoursField) shiftHoursField.value = '';
-            
+
             const vacationHoursField = document.getElementById('vacationHours');
             if (vacationHoursField) vacationHoursField.value = '';
-            
+
+            const holidayCheckbox = document.getElementById('isHoliday');
+            if (holidayCheckbox) holidayCheckbox.checked = false;
+
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
             const primaryBtn = document.getElementById('primaryActionBtn');
@@ -1897,6 +1922,7 @@
                     <strong>Isolation:</strong> ${shift.isolation && shift.isolation !== 'Not specified' ? (shift.isolation === 'None' ? 'No Isolation' : shift.isolation + ' Isolation(s)') : 'Not specified'}<br>
                     <strong>Special Treatments:</strong> ${shift.treatments && shift.treatments.length > 0 ? shift.treatments.join(', ') : 'None'}<br>
                     ${customHoursDisplay}
+                    ${shift.isHoliday ? '<br><strong>Holiday Shift:</strong> 1.5x regular pay' : ''}
                     ${shift.comments ? `<strong>Comments:</strong><br>${shift.comments.replace(/\n/g, '<br>')}` : ''}
                 </div>
             `;
@@ -1946,6 +1972,9 @@
             
             const vacationHoursField = document.getElementById('vacationHours');
             if (vacationHoursField) vacationHoursField.value = shift.vacationHours || '';
+
+            const holidayCheckbox = document.getElementById('isHoliday');
+            if (holidayCheckbox) holidayCheckbox.checked = shift.isHoliday || false;
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 cb.checked = Array.isArray(shift.treatments) && shift.treatments.includes(cb.value);
@@ -2303,6 +2332,7 @@
                     eveningPremium: 0,
                     nightPremium: 0,
                     weekendPremium: 0,
+                    holidayPremium: 0,
                     overtimePay: 0,
                     totalPay: 0
                 }
@@ -2326,6 +2356,7 @@
                         payData.totals.eveningPremium += shiftPay.eveningPremium;
                         payData.totals.nightPremium += shiftPay.nightPremium;
                         payData.totals.weekendPremium += shiftPay.weekendPremium;
+                        payData.totals.holidayPremium += shiftPay.holidayPremium;
                     }
                 }
             });
@@ -2334,10 +2365,10 @@
             payData.totals.regularHours = payData.totals.totalHours;
             payData.totals.overtimePay = paySettings.manualOvertimeHours * paySettings.baseRate * (paySettings.overtimeMultiplier - 1);
 
-            payData.totals.totalPay = payData.totals.basePay + 
-                                     payData.totals.eveningPremium + 
-                                     payData.totals.nightPremium + 
-                                     payData.totals.weekendPremium + 
+            payData.totals.totalPay = payData.totals.basePay +
+                                     payData.totals.eveningPremium +
+                                     payData.totals.nightPremium +
+                                     payData.totals.weekendPremium +
                                      payData.totals.overtimePay;
 
             return payData;
@@ -2346,12 +2377,19 @@
         function calculateShiftPay(date, shift) {
             let hours = getShiftHours(shift); // Use the new function to get actual hours
             const dayOfWeek = date.getDay();
-            
+
             let basePay = hours * paySettings.baseRate;
             let eveningPremium = 0;
             let nightPremium = 0;
             let weekendPremium = 0;
+            let holidayPremium = 0;
             let premiums = [];
+
+            // Holiday bonus: 0.5x additional pay
+            if (shift.isHoliday) {
+                holidayPremium = basePay * 0.5;
+                premiums.push('Holiday');
+            }
 
             // Only calculate premiums for standard shift types, not for custom "Other" shifts
             if (shift.shiftType === 'D') {
@@ -2393,8 +2431,9 @@
                 eveningPremium,
                 nightPremium,
                 weekendPremium,
+                holidayPremium,
                 premiums,
-                totalPay: basePay + eveningPremium + nightPremium + weekendPremium
+                totalPay: basePay + eveningPremium + nightPremium + weekendPremium + holidayPremium
             };
         }
 
@@ -2447,6 +2486,7 @@
                 if (shift.eveningPremium > 0) premiumDetails.push(`Evening: ${shift.eveningPremium.toFixed(2)}`);
                 if (shift.nightPremium > 0) premiumDetails.push(`Night: ${shift.nightPremium.toFixed(2)}`);
                 if (shift.weekendPremium > 0) premiumDetails.push(`Weekend: ${shift.weekendPremium.toFixed(2)}`);
+                if (shift.holidayPremium > 0) premiumDetails.push(`Holiday: ${shift.holidayPremium.toFixed(2)}`);
 
                 let typeDisplay = getShiftTypeDisplay(shift.shiftType);
                 if (shift.shiftType === 'O') {
@@ -2507,6 +2547,12 @@
                         <tr>
                             <td>Weekend Premium</td>
                             <td class="currency">${payData.totals.weekendPremium.toFixed(2)}</td>
+                        </tr>
+                        ` : ''}
+                        ${payData.totals.holidayPremium > 0 ? `
+                        <tr>
+                            <td>Holiday Bonus (0.5x additional)</td>
+                            <td class="currency">${payData.totals.holidayPremium.toFixed(2)}</td>
                         </tr>
                         ` : ''}
                         ${payData.totals.overtimeHours > 0 ? `
